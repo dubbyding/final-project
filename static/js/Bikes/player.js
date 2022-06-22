@@ -8,6 +8,8 @@ class Player extends Bike {
 	constructor(playerColor) {
 		super();
 		this.playerColor = playerColor;
+
+		this.currentState = 'wait';
 	}
 
 	/**
@@ -18,8 +20,28 @@ class Player extends Bike {
 		return this.bikeAssets('player');
 	};
 
+	/**
+	 *
+	 * @param {string} color
+	 * @returns promise that gives true or false on status of bike
+	 */
 	playerBike = (color) => {
-		return this.checkBikeColor('color');
+		return this.checkBikeColor(color);
+	};
+
+	renderBike = (canvas, ctx, bike) => {
+		// ctx.imageSmoothingEnabled = false;
+		ctx.drawImage(
+			bike,
+			this.bikeStates[this.currentState].top,
+			this.bikeStates[this.currentState].left,
+			this.bikeStates[this.currentState].width,
+			this.bikeStates[this.currentState].height,
+			canvas.width / 2.25,
+			canvas.height / 2,
+			this.bikeStates[this.currentState].width * 2,
+			this.bikeStates[this.currentState].height * 2
+		);
 	};
 }
 
