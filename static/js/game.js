@@ -4,8 +4,7 @@ import { Cars } from './obstacles/cars.js';
 import { Farms } from './obstacles/farms.js';
 import { Trees } from './obstacles/tree.js';
 
-import { fullScreenUtil } from './utils.js';
-import { Projection } from './math.js';
+import { Math } from './math.js';
 
 class RoadRash {
 	constructor(id, playerColor) {
@@ -17,10 +16,17 @@ class RoadRash {
 		this.cars = new Cars();
 		this.farms = new Farms();
 		this.trees = new Trees();
+
+		this.math = new Math();
+
+		this.canvas = document.getElementById(this.id);
+
+		this.canvas.width = parseInt(window.innerWidth);
+		this.canvas.height = parseInt(window.innerHeight);
 	}
 	/**
 	 *  Loading all the assets of the game.
-	 * @param {boolean}autoStartGame - Status that auto starts the game after loading if true
+	 * @param {boolean} autoStartGame - Status that auto starts the game after loading if true
 	 * */
 	loadAssets = async (autoStartGame = true) => {
 		let playerList, policeList, carsList, farmList, treeList;
@@ -59,6 +65,7 @@ class RoadRash {
 		 * After fetching assets start the game
 		 */
 		if (autoStartGame) this.start();
+		else return;
 	};
 
 	/**
@@ -106,28 +113,17 @@ class RoadRash {
 		const FRAMES = 60;
 		const SECOND = 1000;
 		const FPS = SECOND / FRAMES;
-		this.canvas = document.getElementById(this.id);
-
-		this.canvas.width = parseInt(window.innerWidth);
-		this.canvas.height = parseInt(window.innerHeight);
-
-		document.addEventListener('keypress', fullScreenUtil);
 
 		this.context = this.canvas.getContext('2d');
 
-		this.gameInterval = setInterval(this.updateGameArea(), FPS);
+		this.gameInterval = setTimeout(this.updateGameArea, FPS);
 	};
 
 	/**
 	 * Clear canvas
 	 */
 	clear = () => {
-		this.context.clearRect(
-			0,
-			0,
-			this.canvas.clientWidth,
-			this.canvas.clientHeight
-		);
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
 	updateGameArea = () => {
@@ -140,5 +136,10 @@ class RoadRash {
 	};
 }
 
-let newGame = new RoadRash('root', 'red');
-newGame.loadAssets();
+const startGame = async () => {
+	let newGame = new RoadRash('root', 'red');
+	await newGame.loadAssets(false);
+	newGame.start();
+};
+
+startGame();

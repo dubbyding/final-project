@@ -30,7 +30,6 @@ class Player extends Bike {
 	};
 
 	renderBike = (canvas, ctx, bike) => {
-		// ctx.imageSmoothingEnabled = false;
 		ctx.drawImage(
 			bike,
 			this.bikeStates[this.currentState].top,
