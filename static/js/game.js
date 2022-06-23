@@ -3,8 +3,9 @@ import { Police } from './Bikes/police.js';
 import { Cars } from './obstacles/cars.js';
 import { Farms } from './obstacles/farms.js';
 import { Trees } from './obstacles/tree.js';
+import { Road } from './road.js';
 
-import { Math } from './math.js';
+import { MathImplement } from './math.js';
 
 class RoadRash {
 	constructor(id, playerColor) {
@@ -17,19 +18,21 @@ class RoadRash {
 		this.farms = new Farms();
 		this.trees = new Trees();
 
-		this.math = new Math();
+		this.math = new MathImplement();
 
 		this.canvas = document.getElementById(this.id);
 
 		this.canvas.width = parseInt(window.innerWidth);
 		this.canvas.height = parseInt(window.innerHeight);
+
+		this.road = new Road(this.canvas.width, this.canvas.height);
 	}
 	/**
 	 *  Loading all the assets of the game.
 	 * @param {boolean} autoStartGame - Status that auto starts the game after loading if true
 	 * */
 	loadAssets = async (autoStartGame = true) => {
-		let playerList, policeList, carsList, farmList, treeList;
+		let playerList, policeList, carsList, farmList, treeList, roadAssets;
 
 		try {
 			playerList = await this.player.playerAsset();
@@ -38,7 +41,11 @@ class RoadRash {
 			carsList = await this.cars.carAssets();
 			farmList = await this.farms.farmAssets();
 			treeList = await this.trees.treeAssets();
-		} catch {
+
+			roadAssets = await this.road.generateNVarietyOfRoads(10, 4);
+			console.log(roadAssets);
+		} catch (e) {
+			console.log(e);
 			console.log('Error Loading Assets');
 		}
 

@@ -29,6 +29,7 @@ class Player extends Bike {
 		return this.checkBikeColor(color);
 	};
 
+	/* Drawing the bike on the canvas. */
 	renderBike = (canvas, ctx, bike) => {
 		ctx.drawImage(
 			bike,

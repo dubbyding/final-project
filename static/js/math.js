@@ -1,4 +1,4 @@
-class Math {
+class MathImplement {
 	/**
 	 * Calculate the perspective projection of the points given
 	 * @param {Number} x - The x coordinate of the point.
@@ -31,14 +31,15 @@ class Math {
 
 	/**
 	 * Calculates the beziers curve using the given control points
-	 * @param {Array} p1 - Starting point of the curve
-	 * @param {Array} p2 - Control point of the curve
-	 * @param {Array} p3 - Control point of the curve
-	 * @param {Array} p4 - Ending point of the curve
-	 * @param {Number} u - Float value of increment number which increases the value of from 0-1
+	 * @param {Array<Number>} p1 - Starting point of the curve
+	 * @param {Array<Number>} p2 - Control point of the curve
+	 * @param {Array<Number>} p3 - Control point of the curve
+	 * @param {Array<Number>} p4 - Ending point of the curve
+	 * @param {Number} partitions - Number of partition and points to get
 	 */
-	beziersCurve = async (p1, p2, p3, p4, u) => {
+	beziersCurve = async (p1, p2, p3, p4, partitions) => {
 		let curvePoints = [];
+		let u = 1 / partitions;
 		for (let i = 0; i <= 1; i += u) {
 			let newPoints = this.beziersCalculation(p1, p2, p3, p4, i);
 			curvePoints.push(newPoints);
@@ -48,10 +49,10 @@ class Math {
 
 	/**
 	 * Calculating the beziers curve using the given control points.
-	 * @param {Array} p1 - Starting point of the curve
-	 * @param {Array} p2 - Control point of the curve
-	 * @param {Array} p3 - Control point of the curve
-	 * @param {Array} p4 - Ending point of the curve
+	 * @param {Array<Number>} p1 - Starting point of the curve
+	 * @param {Array<Number>} p2 - Control point of the curve
+	 * @param {Array<Number>} p3 - Control point of the curve
+	 * @param {Array<Number>} p4 - Ending point of the curve
 	 * @param {Number} u - Float value of increment number which increases the value of from 0-1
 	 * @returns Calculation point of bezier point of value `u`
 	 * */
@@ -83,8 +84,8 @@ class Math {
 	 *  This is a function which is used to calculate the section formula.
 	 *
 	 *	Note:- Shape of p1 and p2 must be the same.
-	 * @param {Int8Array} p1 - Array of points of any shape
-	 * @param {Int8Array} p2 - Array of points of same shape as p1
+	 * @param {Array<Number>} p1 - Array of points of any shape
+	 * @param {Array<Number>} p2 - Array of points of same shape as p1
 	 * @param {Number} m - Left section of the line
 	 * @param {Number} n - Right Section of the line
 	 * @returns New points divide by section formula
@@ -97,11 +98,22 @@ class Math {
 		} else {
 			let newPoints = [];
 			p1.forEach((value, index) => {
-				newPoints.push((m * p2[index] + n * p1[index]) / (m + n));
+				let currentValue = (m * p2[index] + n * p1[index]) / (m + n);
+				newPoints.push(currentValue);
 			});
 			return newPoints;
 		}
 	};
+
+	/**
+	 *  Generating a random number between the given range.
+	 * @param {Number} min - Minimum value of the range
+	 * @param {Number} max - Maximum value of the range
+	 * @returns Random Number between given minimum and maximum range
+	 * */
+	generateRandomNumber = (min, max) => {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	};
 }
 
-export { Math };
+export { MathImplement };
