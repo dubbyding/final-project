@@ -10,10 +10,10 @@ class Road {
 		/**
 		 * Initial viewpoints representing the 4 corner of the roads
 		 */
-		this.p1 = [0, this.height, 0];
+		this.p1 = [-this.width / 2, this.height, 0];
 		this.p2 = [this.width, this.height, 0];
-		this.p3 = [0, 20, 10];
-		this.p4 = [this.width, 20, 10];
+		this.p3 = [-this.width / 2, 20, 50];
+		this.p4 = [this.width, 20, 50];
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Road {
 		if (random) {
 			// Randomly translate
 			dimFact.forEach((value) => {
-				let translate = this.math.generateRandomNumber(-200, 200);
+				let translate = this.math.generateRandomNumber(-this.width, this.width);
 				pointsCopy[dimension[value]] = pointsCopy[dimension[value]] + translate;
 			});
 		} else {
@@ -107,11 +107,73 @@ class Road {
 				numberOfPartition
 			);
 			let rightCoordinates = this.generateRightBoundary(leftCoordinates);
+
+			if (lCords != 0) {
+				leftCoordinates = this.translateSectionCoordinates(
+					leftCoordinates,
+					lCords[lCords.length - 1]
+				);
+			}
+			if (rCords != 0) {
+				rightCoordinates = this.translateSectionCoordinates(
+					rightCoordinates,
+					rCords[rCords.length - 1]
+				);
+			}
+
 			lCords = [...lCords, ...leftCoordinates];
 			rCords = [...rCords, ...rightCoordinates];
 		}
 		arrayOfRoads = [lCords, rCords];
 		return arrayOfRoads;
+	};
+
+	/**
+	 * Translate left or right section of the road area
+	 * @param {Array<Array<Number>>} cords - Current Chords to be transformed
+	 * @param {Array<Number>} prev - Last element of previous element to be transformed
+	 * @returns Traslated coordinate of the given cords section
+	 */
+	translateSectionCoordinates = (cords, prev) => {
+		let diffCords = [
+			prev[0] - cords[0][0],
+			prev[1] - cords[0][1],
+			prev[2] - cords[0][2],
+		];
+		let newCords = [];
+		cords.forEach((value, index) => {
+			if (index != 0) {
+				newCords.push(
+					this.transformingCoordinates([...value], diffCords, false)
+				);
+			}
+		});
+		return newCords;
+	};
+
+	generateProjectedCoordinates = async (cords) => {
+		let newCords = [];
+		cords.forEach((section) => {
+			let newSectionCoords = [];
+			section.forEach((cordinates) => {
+				let x, y, z;
+				[x, y, z] = cordinates;
+				newSectionCoords.push(
+					this.math.perspectiveProjection(
+						x,
+						y,
+						z,
+						this.height / this.width,
+						60,
+						1,
+						-1,
+						false
+					)
+				);
+			});
+			newCords.push(newSectionCoords);
+		});
+		return newCords;
 	};
 }
 
