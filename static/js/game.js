@@ -51,7 +51,6 @@ class RoadRash {
 				numberOfRoads,
 				numberOfPartition
 			);
-			console.log(this.roadAssets);
 		} catch (e) {
 			console.log('Error Loading Assets');
 		}
@@ -156,6 +155,10 @@ class RoadRash {
 			]);
 
 		this.context.beginPath();
+		// this.context.setLineDash([5, 15]);
+		this.context.strokeStyle = '#FF0000';
+		this.context.lineWidth = 10;
+		this.context.fillStyle = '#01735C';
 
 		let rightDiffX = this.canvas.width - newrightCoordinates[0][0] - 100;
 		let rightDiffY = this.canvas.height / newrightCoordinates[0][1];
@@ -180,6 +183,20 @@ class RoadRash {
 			this.context.lineTo(x + leftDiffX, y * rightDiffY);
 			this.context.stroke();
 		}
+		// let x, y;
+		// [x, y] = newleftCoordinates[0];
+		// this.context.moveTo(x + leftDiffX, y * rightDiffY);
+		// [x, y] = newrightCoordinates[0];
+		// this.context.lineTo(x + rightDiffX, y * rightDiffY);
+		// this.context.stroke();
+
+		// [x, y] = newleftCoordinates[newleftCoordinates.length - 1];
+		// this.context.moveTo(x + leftDiffX, y * rightDiffY);
+		// [x, y] = newrightCoordinates[newrightCoordinates.length - 1];
+		// this.context.lineTo(x + rightDiffX, y * rightDiffY);
+		// this.context.stroke();
+		// // this.context.closePath();
+		// // this.context.fill();
 	};
 
 	start = () => {
@@ -201,7 +218,7 @@ class RoadRash {
 
 	updateGameArea = () => {
 		this.clear();
-		// this.index += 0.2;
+		this.index += 0.05;
 		this.player.renderBike(this.canvas, this.context, this.playerBike);
 		this.createRoad();
 	};

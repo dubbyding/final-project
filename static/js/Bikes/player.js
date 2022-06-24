@@ -10,6 +10,9 @@ class Player extends Bike {
 		this.playerColor = playerColor;
 
 		this.currentState = 'wait';
+
+		this.velocity = 0;
+		this.position = 0;
 	}
 
 	/**
@@ -42,6 +45,13 @@ class Player extends Bike {
 			this.bikeStates[this.currentState].width * 3,
 			this.bikeStates[this.currentState].height * 3
 		);
+	};
+
+	accelerateBike = (acceleration) => {
+		this.velocity += acceleration;
+		this.position += this.velocity;
+
+		return this.position;
 	};
 }
 
