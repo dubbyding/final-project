@@ -100,13 +100,17 @@ class Road {
 	 */
 	generateNVarietyOfRoads = async (n, numberOfPartition) => {
 		let arrayOfRoads = [];
+		let lCords = [];
+		let rCords = [];
 		for (let i = 0; i < n; i++) {
 			let leftCoordinates = await this.threeDimensionalPoints(
 				numberOfPartition
 			);
 			let rightCoordinates = this.generateRightBoundary(leftCoordinates);
-			arrayOfRoads.push([leftCoordinates, rightCoordinates]);
+			lCords = [...lCords, ...leftCoordinates];
+			rCords = [...rCords, ...rightCoordinates];
 		}
+		arrayOfRoads = [lCords, rCords];
 		return arrayOfRoads;
 	};
 }

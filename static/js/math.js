@@ -8,6 +8,7 @@ class MathImplement {
 	 * @param {Number} angleOfViewing - FOV angle of the game
 	 * @param {Number} zmax - Maximum value to display
 	 * @param {Number} zmin - Minimum value to display
+	 * @param {Boolean} requireZ - Check if Boolean value is needed to be displayed. Default value:- True
 	 * @returns Projected coordinates of the given points
 	 */
 	perspectiveProjection = (
@@ -17,16 +18,22 @@ class MathImplement {
 		aspectRatio,
 		angleOfViewing,
 		zmax,
-		zmin
+		zmin,
+		requireZ = true
 	) => {
 		const PI = 3.14159;
 		let fov = 1 / Math.tan(angleOfViewing * (PI / 180));
+		let xnew = aspectRatio * fov * x;
+		let ynew = fov * y;
+		let znew = (zmax / (zmax - zmin)) * z - (zmax / (zmax - zmin)) * zmin;
 		let w = z;
-		let xnew = (aspectRatio * fov * x) / w;
-		let ynew = (fov * y) / w;
-		let znew = ((zmax / (zmax - zmin)) * z - (zmax / (zmax - zmin)) * zmin) / w;
-
-		return { xnew, ynew, znew, w };
+		if (w != 0) {
+			xnew /= w;
+			ynew /= w;
+			znew /= w;
+		}
+		if (requireZ) return [xnew, ynew, znew];
+		else return [xnew, ynew];
 	};
 
 	/**
@@ -36,12 +43,12 @@ class MathImplement {
 	 * @param {Array<Number>} p3 - Control point of the curve
 	 * @param {Array<Number>} p4 - Ending point of the curve
 	 * @param {Number} partitions - Number of partition and points to get
+	 * @returns Array of new points
 	 */
 	beziersCurve = async (p1, p2, p3, p4, partitions) => {
 		let curvePoints = [];
-		let u = 1 / partitions;
-		for (let i = 0; i <= 1; i += u) {
-			let newPoints = this.beziersCalculation(p1, p2, p3, p4, i);
+		for (let i = partitions; i >= 0; i--) {
+			let newPoints = this.beziersCalculation(p1, p2, p3, p4, i / partitions);
 			curvePoints.push(newPoints);
 		}
 		return curvePoints;
