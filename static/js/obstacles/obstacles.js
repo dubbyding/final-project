@@ -1,6 +1,6 @@
 class Obstacle {
 	obstacleAssets = async (obstacleName) => {
-		const link = `http://localhost:3000/getAssets/${obstacleName}`;
+		const link = `https://roadrash-api.herokuapp.com/getAssets/${obstacleName}`;
 		let value = await fetch(link);
 		return value.json();
 	};

@@ -201,7 +201,7 @@ class RoadRash {
 
 	updateGameArea = () => {
 		this.clear();
-		this.index += 0.2;
+		// this.index += 0.2;
 		this.player.renderBike(this.canvas, this.context, this.playerBike);
 		this.createRoad();
 	};

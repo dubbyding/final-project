@@ -50,13 +50,13 @@ class Bike {
 	 * @returns promise of json list of bike assets
 	 */
 	bikeAssets = async (type) => {
-		const link = `http://localhost:3000/getAssets/bikes/${type}`;
+		const link = `https://roadrash-api.herokuapp.com/getAssets/bikes/${type}`;
 		let value = await fetch(link);
 		return value.json();
 	};
 
 	checkBikeColor = async (color) => {
-		const link = `http://localhost:3000/getAssets/bikes/player/${color}`;
+		const link = `https://roadrash-api.herokuapp.com/getAssets/bikes/player/${color}`;
 		let value = await fetch(link);
 		return value.json();
 	};
