@@ -1,12 +1,21 @@
-const fullScreenUtil = async (canvas) => {
-	try {
-		if (canvas.requestFullscreen) await canvas.requestFullscreen();
-		else if (canvas.webkitRequestFullscreen)
-			await canvas.webkitRequestFullscreen();
-		else if (canvas.msRequestFullscreen) await canvas.msRequestFullscreen();
-	} catch {
-		console.log('Error Running Full Screen');
-	}
+const createPath = (
+	x1,
+	y1,
+	x2,
+	y2,
+	color = '#000000',
+	lineWidth = 1,
+	dashed = [],
+	ctx
+) => {
+	ctx.beginPath();
+	ctx.setLineDash(dashed);
+	ctx.strokeStyle = color;
+	ctx.lineWidth = lineWidth;
+	ctx.moveTo(x1, y1);
+	ctx.lineTo(x2, y2);
+	ctx.stroke();
+	ctx.closePath();
 };
 
-export { fullScreenUtil };
+export { createPath };

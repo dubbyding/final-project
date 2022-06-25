@@ -7,6 +7,8 @@ import { Road } from './road.js';
 
 import { MathImplement } from './math.js';
 
+import { createPath } from './utils.js';
+
 class RoadRash {
 	constructor(id, playerColor) {
 		this.id = id;
@@ -27,7 +29,9 @@ class RoadRash {
 
 		this.road = new Road(this.canvas.width, this.canvas.height);
 
-		this.index = 2;
+		this.index = 0;
+
+		this.movement = 0;
 	}
 	/**
 	 *  Loading all the assets of the game.
@@ -123,15 +127,15 @@ class RoadRash {
 	createRoad = async () => {
 		let leftCoordinates, rightCoordinates;
 		[leftCoordinates, rightCoordinates] = this.roadAssets;
-		let initialLeftCoordinates = [...leftCoordinates].slice(0, 50);
-		let initialRightCoordinates = [...rightCoordinates].slice(0, 50);
+		let initialLeftCoordinates = [...leftCoordinates].slice(0, 10);
+		let initialRightCoordinates = [...rightCoordinates].slice(0, 10);
 		let newleftCoordinates = [...leftCoordinates].slice(
 			this.index,
-			this.index + 50
+			this.index + 10
 		);
 		let newrightCoordinates = [...rightCoordinates].slice(
 			this.index,
-			this.index + 50
+			this.index + 10
 		);
 		let currentCoordinatesLeft = [];
 		let currentCoordinatesRight = [];
@@ -155,48 +159,71 @@ class RoadRash {
 			]);
 
 		this.context.beginPath();
-		// this.context.setLineDash([5, 15]);
-		this.context.strokeStyle = '#FF0000';
+		this.context.setLineDash([10]);
+		this.context.strokeStyle = '#000000';
 		this.context.lineWidth = 10;
-		this.context.fillStyle = '#01735C';
 
 		let rightDiffX = this.canvas.width - newrightCoordinates[0][0] - 100;
 		let rightDiffY = this.canvas.height / newrightCoordinates[0][1];
 
 		let leftDiffX = -newleftCoordinates[0][0] + 100;
 
-		for (let i = 0; i < 49; i++) {
-			let x, y;
+		for (let i = 0; i < 9; i++) {
+			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
+			[xright1, yright1] = newrightCoordinates[i];
+			[xright2, yright2] = newrightCoordinates[i + 1];
 
-			[x, y] = newrightCoordinates[i];
-			this.context.moveTo(x + rightDiffX, y * rightDiffY);
+			createPath(
+				xright1 + rightDiffX,
+				yright1 * rightDiffY,
+				xright2 + rightDiffX,
+				yright2 * rightDiffY,
+				'#000000',
+				10,
+				[20],
+				this.context
+			);
 
-			[x, y] = newrightCoordinates[i + 1];
-			this.context.lineTo(x + rightDiffX, y * rightDiffY);
+			[xleft1, yleft1] = newleftCoordinates[i];
+			[xleft2, yleft2] = newleftCoordinates[i + 1];
 
-			this.context.stroke();
-
-			[x, y] = newleftCoordinates[i];
-			this.context.moveTo(x + leftDiffX, y * rightDiffY);
-
-			[x, y] = newleftCoordinates[i + 1];
-			this.context.lineTo(x + leftDiffX, y * rightDiffY);
-			this.context.stroke();
+			createPath(
+				xleft1 + leftDiffX,
+				yleft1 * rightDiffY,
+				xleft2 + leftDiffX,
+				yleft2 * rightDiffY,
+				'#000000',
+				10,
+				[20],
+				this.context
+			);
 		}
-		// let x, y;
-		// [x, y] = newleftCoordinates[0];
-		// this.context.moveTo(x + leftDiffX, y * rightDiffY);
-		// [x, y] = newrightCoordinates[0];
-		// this.context.lineTo(x + rightDiffX, y * rightDiffY);
-		// this.context.stroke();
+		let startingX, startingY, endingX, endingY;
 
-		// [x, y] = newleftCoordinates[newleftCoordinates.length - 1];
-		// this.context.moveTo(x + leftDiffX, y * rightDiffY);
-		// [x, y] = newrightCoordinates[newrightCoordinates.length - 1];
-		// this.context.lineTo(x + rightDiffX, y * rightDiffY);
-		// this.context.stroke();
-		// // this.context.closePath();
-		// // this.context.fill();
+		let x1, y1, x2, y2;
+
+		[x1, y1] = newleftCoordinates[0];
+		[x2, y2] = newrightCoordinates[0];
+
+		startingX = (x1 + leftDiffX + rightDiffX + x2) / 2;
+		startingY = ((y1 + y2) / 2) * rightDiffY;
+
+		[x1, y1] = newleftCoordinates[newleftCoordinates.length - 1];
+		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
+
+		endingX = (x1 + leftDiffX + rightDiffX + x2) / 2;
+		endingY = ((y1 + y2) / 2) * rightDiffY;
+
+		createPath(
+			startingX,
+			startingY,
+			endingX,
+			endingY,
+			'#000000',
+			10,
+			[20],
+			this.context
+		);
 	};
 
 	start = () => {
@@ -216,11 +243,23 @@ class RoadRash {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
-	updateGameArea = () => {
+	movementPlayer = () => {
+		document.addEventListener('keydown', (e) => {
+			if (e.code == 'KeyW') {
+				console.log('Move');
+			}
+		});
+		document.addEventListener('keyup', (e) => {
+			if (e.code == 'KeyW') {
+				console.log('stop');
+			}
+		});
+	};
+
+	updateGameArea = async () => {
 		this.clear();
-		this.index += 0.05;
+		await this.createRoad();
 		this.player.renderBike(this.canvas, this.context, this.playerBike);
-		this.createRoad();
 	};
 }
 
@@ -228,6 +267,7 @@ const startGame = async () => {
 	let newGame = new RoadRash('root', 'red');
 	await newGame.loadAssets(false);
 	newGame.start();
+	newGame.movementPlayer();
 };
 
 startGame();
