@@ -39,9 +39,9 @@ class Player extends Bike {
 			this.bikeStates[this.currentState].width,
 			this.bikeStates[this.currentState].height,
 			this.position,
-			canvas.height / 2,
-			this.bikeStates[this.currentState].width * 5,
-			this.bikeStates[this.currentState].height * 5
+			canvas.height / 1.5,
+			this.bikeStates[this.currentState].width * this.currentWidth,
+			this.bikeStates[this.currentState].height * this.currentWidth
 		);
 	};
 }

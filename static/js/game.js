@@ -200,6 +200,8 @@ class RoadRash {
 				[20],
 				this.context
 			);
+			this.rightLimit = xright1 + rightDiffX;
+			this.leftLimit = xleft1 + leftDiffX;
 		}
 		let startingX, startingY, endingX, endingY;
 
@@ -251,16 +253,30 @@ class RoadRash {
 			let maxVelocity = 50;
 			let minVelocity = -25;
 			this.movement = true;
-			if (e.code == 'KeyW') {
+			if (e.code == 'KeyW' || e.code == 'ArrowUp') {
 				this.velocity += 1;
 				if (this.velocity > maxVelocity) {
 					this.velocity = maxVelocity;
 				}
 			}
-			if (e.code == 'KeyS') {
+			if (e.code == 'KeyS' || e.code == 'ArrowDown') {
 				this.velocity -= 1;
 				if (this.velocity < minVelocity) {
 					this.velocity = minVelocity;
+				}
+			}
+			if (e.code == 'KeyA' || e.code == 'ArrowLeft') {
+				if (Math.round(this.leftLimit) < Math.round(this.player.position)) {
+					this.player.position -= 5;
+				} else {
+					this.player.position += 5;
+				}
+			}
+			if (e.code == 'KeyD' || e.code == 'ArrowRight') {
+				if (Math.round(this.rightLimit) > Math.round(this.player.position)) {
+					this.player.position += 5;
+				} else {
+					this.player.position -= 5;
 				}
 			}
 		});
