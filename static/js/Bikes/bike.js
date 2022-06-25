@@ -6,10 +6,10 @@ class Bike {
 		this.currentWidth = 2;
 		this.bikeStates = {
 			wait: {
-				top: -5,
-				left: -8,
-				width: 45,
-				height: 70,
+				top: 5,
+				left: 8,
+				width: 32,
+				height: 54,
 			},
 			wheely: {
 				top: 42,
@@ -40,6 +40,30 @@ class Bike {
 				left: 86,
 				width: 34,
 				height: 48,
+			},
+			punchLeft: {
+				top: 231,
+				left: 90,
+				width: 44,
+				height: 51,
+			},
+			punchRight: {
+				top: 118,
+				left: 164,
+				width: 44,
+				height: 51,
+			},
+			kickLeft: {
+				top: 321,
+				left: 88,
+				width: 42,
+				height: 53,
+			},
+			kickRight: {
+				top: 350,
+				left: 162,
+				width: 42,
+				height: 53,
 			},
 		};
 	}
@@ -98,6 +122,19 @@ class Bike {
 			if (keyPressed['a'] || keyPressed['ArrowLeft']) {
 				this.currentState = 'left';
 			}
+		}
+
+		if (keyPressed['x']) {
+			this.currentState = 'punchLeft';
+		}
+		if (keyPressed['c']) {
+			this.currentState = 'punchRight';
+		}
+		if (keyPressed['z']) {
+			this.currentState = 'kickLeft';
+		}
+		if (keyPressed['v']) {
+			this.currentState = 'kickRight';
 		}
 	};
 }
