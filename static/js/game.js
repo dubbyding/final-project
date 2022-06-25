@@ -40,7 +40,7 @@ class RoadRash {
 		this.displayStateDuration = 0;
 	}
 	/**
-	 *  Loading all the assets of the game.
+	 * @desc Loading all the assets of the game.
 	 * @param {boolean} autoStartGame - Status that auto starts the game after loading if true
 	 * */
 	loadAssets = async (autoStartGame = true) => {
@@ -92,7 +92,7 @@ class RoadRash {
 	};
 
 	/**
-	 *
+	 * @desc Loads Necessary Assets
 	 * @param {array} list
 	 * @param {boolean} array
 	 * @returns array of new elements created
@@ -130,6 +130,9 @@ class RoadRash {
 		});
 	};
 
+	/**
+	 * @desc Creates a road for the game
+	 */
 	createRoad = async () => {
 		let leftCoordinates, rightCoordinates;
 		let currentIndex = Math.round(this.index);
@@ -215,14 +218,53 @@ class RoadRash {
 		[x1, y1] = newleftCoordinates[0];
 		[x2, y2] = newrightCoordinates[0];
 
-		startingX = (x1 + leftDiffX + rightDiffX + x2) / 2;
-		startingY = ((y1 + y2) / 2) * rightDiffY;
+		[startingX, startingY] = this.math.sectionFormula(
+			[x1 + leftDiffX, y1 * rightDiffY],
+			[x2 + rightDiffX, y2 * rightDiffY],
+			2,
+			1
+		);
 
 		[x1, y1] = newleftCoordinates[newleftCoordinates.length - 1];
 		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
 
-		endingX = (x1 + leftDiffX + rightDiffX + x2) / 2;
-		endingY = ((y1 + y2) / 2) * rightDiffY;
+		[endingX, endingY] = this.math.sectionFormula(
+			[x1 + leftDiffX, y1 * rightDiffY],
+			[x2 + rightDiffX, y2 * rightDiffY],
+			2,
+			1
+		);
+
+		createPath(
+			startingX,
+			startingY,
+			endingX,
+			endingY,
+			'#000000',
+			10,
+			[20],
+			this.context
+		);
+
+		[x1, y1] = newleftCoordinates[0];
+		[x2, y2] = newrightCoordinates[0];
+
+		[startingX, startingY] = this.math.sectionFormula(
+			[x1 + leftDiffX, y1 * rightDiffY],
+			[x2 + rightDiffX, y2 * rightDiffY],
+			1,
+			2
+		);
+
+		[x1, y1] = newleftCoordinates[newleftCoordinates.length - 1];
+		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
+
+		[endingX, endingY] = this.math.sectionFormula(
+			[x1 + leftDiffX, y1 * rightDiffY],
+			[x2 + rightDiffX, y2 * rightDiffY],
+			1,
+			2
+		);
 
 		createPath(
 			startingX,
@@ -236,6 +278,7 @@ class RoadRash {
 		);
 	};
 
+	/* Setting the frame rate of the game and starting the game*/
 	start = () => {
 		const FRAMES = 60;
 		const SECOND = 1000;
@@ -253,6 +296,7 @@ class RoadRash {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
+	/* A function that is called in the start function. It is used to detect the key pressed by the user. */
 	movementPlayer = () => {
 		this.keyPressed = {};
 		document.addEventListener('keydown', (e) => {
@@ -265,6 +309,9 @@ class RoadRash {
 		});
 	};
 
+	/**
+	 * This function gives the actual movement activities
+	 */
 	movementAction = () => {
 		let maxVelocity = 25;
 		let minVelocity = -12;
@@ -285,6 +332,7 @@ class RoadRash {
 				if (Math.round(this.leftLimit) < Math.round(this.player.position)) {
 					this.player.position -= 5;
 				} else {
+					this.velocity = Math.round(this.velocity / 2);
 					this.player.position += 5;
 				}
 			}
@@ -295,11 +343,13 @@ class RoadRash {
 					this.player.position += 5;
 				} else {
 					this.player.position -= 5;
+					this.velocity = Math.round(this.velocity / 2);
 				}
 			}
 		}
 	};
 
+	/* Changing the velocity of the bike. */
 	velocityChange = () => {
 		const SPEED_LIMIT = 80;
 		if (!this.movement) {
@@ -318,6 +368,8 @@ class RoadRash {
 			this.index = nextIndex;
 	};
 
+	/* The main function that is called in the start function. It is used to detect the key pressed by the
+	user. */
 	updateGameArea = async () => {
 		this.clear();
 		await this.createRoad();

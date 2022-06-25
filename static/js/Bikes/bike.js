@@ -60,6 +60,10 @@ class Bike {
 		}
 	};
 
+	/**
+	 * @desc Checking the color of the bike.
+	 * @param {String} color - Color of bike to be checked
+	 * */
 	checkBikeColor = async (color) => {
 		try {
 			const link = `http://localhost:3000/getAssets/bikes/player/${color}`;
@@ -72,6 +76,11 @@ class Bike {
 		}
 	};
 
+	/**
+	 * @desc A function that is used to change the state of the bike.
+	 * @param {Number} velocity - current velocity of the bike
+	 * @param {Object} keyPressed - Object of currently pressed keys
+	 * */
 	transitionAnimation = (velocity, keyPressed) => {
 		if (velocity == 0) {
 			this.currentState = 'wait';
