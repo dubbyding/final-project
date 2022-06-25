@@ -34,6 +34,10 @@ class RoadRash {
 		this.velocity = 0;
 
 		this.movement = false;
+
+		this.displayState = 0;
+
+		this.displayStateDuration = 0;
 	}
 	/**
 	 *  Loading all the assets of the game.
@@ -171,6 +175,9 @@ class RoadRash {
 
 		let leftDiffX = -newleftCoordinates[0][0] + 100;
 
+		this.rightLimit = newrightCoordinates[0][0] + rightDiffX;
+		this.leftLimit = newleftCoordinates[0][0] + leftDiffX;
+
 		for (let i = 0; i < 9; i++) {
 			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
 			[xright1, yright1] = newrightCoordinates[i];
@@ -200,8 +207,6 @@ class RoadRash {
 				[20],
 				this.context
 			);
-			this.rightLimit = xright1 + rightDiffX;
-			this.leftLimit = xleft1 + leftDiffX;
 		}
 		let startingX, startingY, endingX, endingY;
 
@@ -249,63 +254,77 @@ class RoadRash {
 	};
 
 	movementPlayer = () => {
+		this.keyPressed = {};
 		document.addEventListener('keydown', (e) => {
-			let maxVelocity = 50;
-			let minVelocity = -25;
 			this.movement = true;
-			if (e.code == 'KeyW' || e.code == 'ArrowUp') {
-				this.velocity += 1;
-				if (this.velocity > maxVelocity) {
-					this.velocity = maxVelocity;
-				}
+			this.keyPressed[e.key] = true;
+		});
+		document.addEventListener('keyup', (e) => {
+			this.movement = false;
+			delete this.keyPressed[e.key];
+		});
+	};
+
+	movementAction = () => {
+		let maxVelocity = 25;
+		let minVelocity = -12;
+		if (this.keyPressed['w'] || this.keyPressed['ArrowUp']) {
+			this.velocity += 1;
+			if (this.velocity > maxVelocity) {
+				this.velocity = maxVelocity;
 			}
-			if (e.code == 'KeyS' || e.code == 'ArrowDown') {
-				this.velocity -= 1;
-				if (this.velocity < minVelocity) {
-					this.velocity = minVelocity;
-				}
+		}
+		if (this.keyPressed['s'] || this.keyPressed['ArrowDown']) {
+			this.velocity -= 1;
+			if (this.velocity < minVelocity) {
+				this.velocity = minVelocity;
 			}
-			if (e.code == 'KeyA' || e.code == 'ArrowLeft') {
+		}
+		if (this.keyPressed['a'] || this.keyPressed['ArrowLeft']) {
+			if (this.velocity != 0) {
 				if (Math.round(this.leftLimit) < Math.round(this.player.position)) {
 					this.player.position -= 5;
 				} else {
 					this.player.position += 5;
 				}
 			}
-			if (e.code == 'KeyD' || e.code == 'ArrowRight') {
+		}
+		if (this.keyPressed['d'] || this.keyPressed['ArrowRight']) {
+			if (this.velocity != 0) {
 				if (Math.round(this.rightLimit) > Math.round(this.player.position)) {
 					this.player.position += 5;
 				} else {
 					this.player.position -= 5;
 				}
 			}
-		});
-		document.addEventListener('keyup', () => {
-			this.movement = false;
-		});
+		}
 	};
 
 	velocityChange = () => {
 		const SPEED_LIMIT = 80;
 		if (!this.movement) {
 			if (this.velocity > 0) {
-				this.velocity -= 1;
+				this.velocity -= 0.5;
 			} else if (this.velocity < 0) {
-				this.velocity += 1;
+				this.velocity += 0.5;
 			} else {
 				this.velocity = 0;
 			}
 		}
 
-		this.index += this.velocity / SPEED_LIMIT;
+		let nextIndex = this.index + this.velocity / SPEED_LIMIT;
+
+		if (nextIndex + 10 < this.roadAssets[0].length - 1 && nextIndex >= 0)
+			this.index = nextIndex;
 	};
 
 	updateGameArea = async () => {
 		this.clear();
-		// this.index += this.velocity;
-		this.velocityChange();
 		await this.createRoad();
 		this.player.renderBike(this.canvas, this.context, this.playerBike);
+		this.movementAction();
+		this.velocityChange();
+		this.player.transitionAnimation(this.velocity, this.keyPressed);
 	};
 }
 
