@@ -14,7 +14,7 @@ class RoadRash {
 		this.id = id;
 		this.playerColor = playerColor;
 
-		this.player = new Player();
+		this.player = new Player(window.innerWidth);
 		this.police = new Police();
 		this.cars = new Cars();
 		this.farms = new Farms();
@@ -31,7 +31,9 @@ class RoadRash {
 
 		this.index = 0;
 
-		this.movement = 0;
+		this.velocity = 0;
+
+		this.movement = false;
 	}
 	/**
 	 *  Loading all the assets of the game.
@@ -126,16 +128,17 @@ class RoadRash {
 
 	createRoad = async () => {
 		let leftCoordinates, rightCoordinates;
+		let currentIndex = Math.round(this.index);
 		[leftCoordinates, rightCoordinates] = this.roadAssets;
 		let initialLeftCoordinates = [...leftCoordinates].slice(0, 10);
 		let initialRightCoordinates = [...rightCoordinates].slice(0, 10);
 		let newleftCoordinates = [...leftCoordinates].slice(
-			this.index,
-			this.index + 10
+			currentIndex,
+			currentIndex + 10
 		);
 		let newrightCoordinates = [...rightCoordinates].slice(
-			this.index,
-			this.index + 10
+			currentIndex,
+			currentIndex + 10
 		);
 		let currentCoordinatesLeft = [];
 		let currentCoordinatesRight = [];
@@ -245,19 +248,46 @@ class RoadRash {
 
 	movementPlayer = () => {
 		document.addEventListener('keydown', (e) => {
+			let maxVelocity = 50;
+			let minVelocity = -25;
+			this.movement = true;
 			if (e.code == 'KeyW') {
-				console.log('Move');
+				this.velocity += 1;
+				if (this.velocity > maxVelocity) {
+					this.velocity = maxVelocity;
+				}
+			}
+			if (e.code == 'KeyS') {
+				this.velocity -= 1;
+				if (this.velocity < minVelocity) {
+					this.velocity = minVelocity;
+				}
 			}
 		});
-		document.addEventListener('keyup', (e) => {
-			if (e.code == 'KeyW') {
-				console.log('stop');
-			}
+		document.addEventListener('keyup', () => {
+			this.movement = false;
 		});
+	};
+
+	velocityChange = () => {
+		const SPEED_LIMIT = 80;
+		if (!this.movement) {
+			if (this.velocity > 0) {
+				this.velocity -= 1;
+			} else if (this.velocity < 0) {
+				this.velocity += 1;
+			} else {
+				this.velocity = 0;
+			}
+		}
+
+		this.index += this.velocity / SPEED_LIMIT;
 	};
 
 	updateGameArea = async () => {
 		this.clear();
+		// this.index += this.velocity;
+		this.velocityChange();
 		await this.createRoad();
 		this.player.renderBike(this.canvas, this.context, this.playerBike);
 	};

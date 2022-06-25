@@ -5,14 +5,12 @@ import { Bike } from './bike.js';
  * This class also defines the tasks to be done by players such as movements
  */
 class Player extends Bike {
-	constructor(playerColor) {
+	constructor(width) {
 		super();
-		this.playerColor = playerColor;
 
 		this.currentState = 'wait';
 
-		this.velocity = 0;
-		this.position = 0;
+		this.position = width / 2.25;
 	}
 
 	/**
@@ -40,10 +38,10 @@ class Player extends Bike {
 			this.bikeStates[this.currentState].left,
 			this.bikeStates[this.currentState].width,
 			this.bikeStates[this.currentState].height,
-			canvas.width / 2.25,
+			this.position,
 			canvas.height / 2,
-			this.bikeStates[this.currentState].width * 3,
-			this.bikeStates[this.currentState].height * 3
+			this.bikeStates[this.currentState].width * 5,
+			this.bikeStates[this.currentState].height * 5
 		);
 	};
 }

@@ -1,4 +1,3 @@
-/* canvas[id^='root'] {
-	width: 100%;
-	height: 97vh;
-} */
+canvas[id^='root'] {
+	display: block;
+}
