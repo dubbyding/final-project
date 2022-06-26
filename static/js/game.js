@@ -38,6 +38,8 @@ class RoadRash {
 		this.displayState = 0;
 
 		this.displayStateDuration = 0;
+
+		this.playerIndex = 2;
 	}
 	/**
 	 * @desc Loading all the assets of the game.
@@ -181,6 +183,17 @@ class RoadRash {
 		this.rightLimit = newrightCoordinates[0][0] + rightDiffX;
 		this.leftLimit = newleftCoordinates[0][0] + leftDiffX;
 
+		if (!this.player.position) {
+			let x1, y1, x2, y2;
+			[x1, y1] = newrightCoordinates[this.playerIndex];
+			[x2, y2] = newleftCoordinates[this.playerIndex];
+
+			this.player.position = (x1 + leftDiffX + rightDiffX + x2) / 2;
+			this.player.height = ((y1 + y2) / 1.25) * rightDiffY;
+			this.xMax = x1 + rightDiffX;
+			this.xMin = x2 + leftDiffX;
+		}
+
 		for (let i = 0; i < 9; i++) {
 			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
 			[xright1, yright1] = newrightCoordinates[i];
@@ -309,6 +322,10 @@ class RoadRash {
 		});
 	};
 
+	renderPlayer = () => {
+		this.player.renderBike(this.canvas, this.context, this.playerBike);
+	};
+
 	/**
 	 * This function gives the actual movement activities
 	 */
@@ -329,7 +346,7 @@ class RoadRash {
 		}
 		if (this.keyPressed['a'] || this.keyPressed['ArrowLeft']) {
 			if (this.velocity != 0) {
-				if (Math.round(this.leftLimit) < Math.round(this.player.position)) {
+				if (Math.round(this.xMin) < Math.round(this.player.position)) {
 					this.player.position -= 5;
 				} else {
 					this.velocity = Math.round(this.velocity / 2);
@@ -339,7 +356,7 @@ class RoadRash {
 		}
 		if (this.keyPressed['d'] || this.keyPressed['ArrowRight']) {
 			if (this.velocity != 0) {
-				if (Math.round(this.rightLimit) > Math.round(this.player.position)) {
+				if (Math.round(this.xMax) > Math.round(this.player.position)) {
 					this.player.position += 5;
 				} else {
 					this.player.position -= 5;
@@ -373,7 +390,7 @@ class RoadRash {
 	updateGameArea = async () => {
 		this.clear();
 		await this.createRoad();
-		this.player.renderBike(this.canvas, this.context, this.playerBike);
+		this.renderPlayer();
 		this.movementAction();
 		this.velocityChange();
 		this.player.transitionAnimation(this.velocity, this.keyPressed);

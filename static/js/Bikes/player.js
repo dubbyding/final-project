@@ -9,8 +9,6 @@ class Player extends Bike {
 		super();
 
 		this.currentState = 'wait';
-
-		this.position = width / 2.25;
 	}
 
 	/**
@@ -39,7 +37,7 @@ class Player extends Bike {
 			this.bikeStates[this.currentState].width,
 			this.bikeStates[this.currentState].height,
 			this.position,
-			canvas.height / 1.5,
+			this.height,
 			this.bikeStates[this.currentState].width * this.currentWidth,
 			this.bikeStates[this.currentState].height * this.currentWidth
 		);
