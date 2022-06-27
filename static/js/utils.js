@@ -18,4 +18,26 @@ const createPath = (
 	ctx.closePath();
 };
 
-export { createPath };
+const getCurrentCoords = (index, roadAssets) => {
+	let leftCoordinates, rightCoordinates;
+	let currentIndex = Math.round(index);
+	[leftCoordinates, rightCoordinates] = roadAssets;
+	let initialLeftCoordinates = [...leftCoordinates].slice(0, 10);
+	let initialRightCoordinates = [...rightCoordinates].slice(0, 10);
+	let newleftCoordinates = [...leftCoordinates].slice(
+		currentIndex,
+		currentIndex + 10
+	);
+	let newrightCoordinates = [...rightCoordinates].slice(
+		currentIndex,
+		currentIndex + 10
+	);
+	return [
+		newleftCoordinates,
+		newrightCoordinates,
+		initialLeftCoordinates,
+		initialRightCoordinates,
+	];
+};
+
+export { createPath, getCurrentCoords };

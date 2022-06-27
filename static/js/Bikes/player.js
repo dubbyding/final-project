@@ -5,10 +5,12 @@ import { Bike } from './bike.js';
  * This class also defines the tasks to be done by players such as movements
  */
 class Player extends Bike {
-	constructor(width) {
+	constructor() {
 		super();
-
 		this.currentState = 'wait';
+		this.width = this.bikeStates[this.currentState].width;
+		this.bikeHeight = this.bikeStates[this.currentState].height;
+		this.z = 1;
 	}
 
 	/**
@@ -29,17 +31,17 @@ class Player extends Bike {
 	};
 
 	/* Drawing the bike on the canvas. */
-	renderBike = (canvas, ctx, bike) => {
+	renderBike = (ctx, bike, top, left, width, height) => {
 		ctx.drawImage(
 			bike,
 			this.bikeStates[this.currentState].top,
 			this.bikeStates[this.currentState].left,
 			this.bikeStates[this.currentState].width,
 			this.bikeStates[this.currentState].height,
-			this.position,
-			this.height,
-			this.bikeStates[this.currentState].width * this.currentWidth,
-			this.bikeStates[this.currentState].height * this.currentWidth
+			top,
+			left,
+			width,
+			height
 		);
 	};
 }

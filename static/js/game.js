@@ -4,10 +4,10 @@ import { Cars } from './obstacles/cars.js';
 import { Farms } from './obstacles/farms.js';
 import { Trees } from './obstacles/tree.js';
 import { Road } from './road.js';
-
+import { Audio } from './audio/audio.js';
 import { MathImplement } from './math.js';
 
-import { createPath } from './utils.js';
+import { createPath, getCurrentCoords } from './utils.js';
 
 class RoadRash {
 	constructor(id, playerColor) {
@@ -19,7 +19,7 @@ class RoadRash {
 		this.cars = new Cars();
 		this.farms = new Farms();
 		this.trees = new Trees();
-
+		this.audio = new Audio();
 		this.math = new MathImplement();
 
 		this.canvas = document.getElementById(this.id);
@@ -49,7 +49,16 @@ class RoadRash {
 		const numberOfRoads = 100;
 		const numberOfPartition = 50;
 
-		let playerList, policeList, carsList, farmList, treeList;
+		let playerList, policeList, carsList, farmList, treeList, audio;
+
+		try {
+			await this.audio.getAudios();
+			await this.audio.createIdleSound();
+			console.log(await this.audio.createRideSound());
+		} catch (e) {
+			console.log(e);
+			console.log('Error loading audio');
+		}
 
 		try {
 			playerList = await this.player.playerAsset();
@@ -136,19 +145,17 @@ class RoadRash {
 	 * @desc Creates a road for the game
 	 */
 	createRoad = async () => {
-		let leftCoordinates, rightCoordinates;
-		let currentIndex = Math.round(this.index);
-		[leftCoordinates, rightCoordinates] = this.roadAssets;
-		let initialLeftCoordinates = [...leftCoordinates].slice(0, 10);
-		let initialRightCoordinates = [...rightCoordinates].slice(0, 10);
-		let newleftCoordinates = [...leftCoordinates].slice(
-			currentIndex,
-			currentIndex + 10
-		);
-		let newrightCoordinates = [...rightCoordinates].slice(
-			currentIndex,
-			currentIndex + 10
-		);
+		let newleftCoordinates,
+			newrightCoordinates,
+			initialLeftCoordinates,
+			initialRightCoordinates;
+		[
+			newleftCoordinates,
+			newrightCoordinates,
+			initialLeftCoordinates,
+			initialRightCoordinates,
+		] = getCurrentCoords(this.index, this.roadAssets);
+
 		let currentCoordinatesLeft = [];
 		let currentCoordinatesRight = [];
 		for (let i in newleftCoordinates) {
@@ -170,11 +177,6 @@ class RoadRash {
 				currentCoordinatesRight,
 			]);
 
-		this.context.beginPath();
-		this.context.setLineDash([10]);
-		this.context.strokeStyle = '#000000';
-		this.context.lineWidth = 10;
-
 		let rightDiffX = this.canvas.width - newrightCoordinates[0][0] - 100;
 		let rightDiffY = this.canvas.height / newrightCoordinates[0][1];
 
@@ -183,16 +185,8 @@ class RoadRash {
 		this.rightLimit = newrightCoordinates[0][0] + rightDiffX;
 		this.leftLimit = newleftCoordinates[0][0] + leftDiffX;
 
-		if (!this.player.position) {
-			let x1, y1, x2, y2;
-			[x1, y1] = newrightCoordinates[this.playerIndex];
-			[x2, y2] = newleftCoordinates[this.playerIndex];
-
-			this.player.position = (x1 + leftDiffX + rightDiffX + x2) / 2;
-			this.player.height = ((y1 + y2) / 1.25) * rightDiffY;
-			this.xMax = x1 + rightDiffX;
-			this.xMin = x2 + leftDiffX;
-		}
+		this.xMin = newleftCoordinates[this.playerIndex][0] + leftDiffX;
+		this.xMax = newrightCoordinates[this.playerIndex][0] + rightDiffX;
 
 		for (let i = 0; i < 9; i++) {
 			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
@@ -206,7 +200,7 @@ class RoadRash {
 				yright2 * rightDiffY,
 				'#000000',
 				10,
-				[20],
+				[Math.round(this.index) % 100],
 				this.context
 			);
 
@@ -220,13 +214,36 @@ class RoadRash {
 				yleft2 * rightDiffY,
 				'#000000',
 				10,
-				[20],
+				[Math.round(this.index) % 100],
 				this.context
 			);
 		}
+
 		let startingX, startingY, endingX, endingY;
 
 		let x1, y1, x2, y2;
+		// Set road color
+		this.context.beginPath();
+		this.context.lineWidth = 0;
+		this.context.setLineDash([]);
+		this.context.fillStyle = '#47484c';
+
+		[x1, y1] = newrightCoordinates[0];
+		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
+
+		this.context.moveTo(x1 + rightDiffX, y1 * rightDiffY);
+		this.context.lineTo(x2 + rightDiffX, y2 * rightDiffY);
+
+		[x2, y2] = newleftCoordinates[newleftCoordinates.length - 1];
+
+		this.context.lineTo(x2 + leftDiffX, y2 * rightDiffY);
+
+		[x2, y2] = newleftCoordinates[0];
+		this.context.lineTo(x2 + leftDiffX, y2 * rightDiffY);
+		this.context.lineTo(x1 + rightDiffX, y1 * rightDiffY);
+
+		this.context.fill();
+		this.context.closePath();
 
 		[x1, y1] = newleftCoordinates[0];
 		[x2, y2] = newrightCoordinates[0];
@@ -255,7 +272,7 @@ class RoadRash {
 			endingY,
 			'#000000',
 			10,
-			[20],
+			[Math.round(this.index) % 100],
 			this.context
 		);
 
@@ -286,7 +303,7 @@ class RoadRash {
 			endingY,
 			'#000000',
 			10,
-			[20],
+			[Math.round(this.index) % 100],
 			this.context
 		);
 	};
@@ -322,8 +339,63 @@ class RoadRash {
 		});
 	};
 
-	renderPlayer = () => {
-		this.player.renderBike(this.canvas, this.context, this.playerBike);
+	renderPlayer = async () => {
+		if (!this.player.position) {
+			this.player.position = 0;
+			this.player.height = this.canvas.height;
+		}
+
+		let newleftCoordinates, newrightCoordinates;
+
+		[newleftCoordinates, newrightCoordinates] = getCurrentCoords(
+			this.index,
+			this.roadAssets
+		);
+
+		let currentPlayerPosX = [
+			[this.player.position, this.player.height, this.player.z],
+			[
+				this.player.position,
+				this.player.height + this.player.bikeHeight,
+				this.player.z,
+			],
+		];
+		let currentPlayerPosY = [
+			[
+				this.player.position + this.player.width,
+				this.player.height,
+				this.player.z,
+			],
+			[
+				this.player.position + this.player.width,
+				this.player.height + this.player.bikeHeight,
+				this.player.z,
+			],
+		];
+
+		[newleftCoordinates, newrightCoordinates] =
+			await this.road.generateProjectedCoordinates([
+				currentPlayerPosX,
+				currentPlayerPosY,
+			]);
+
+		this.top = Math.round(newleftCoordinates[0][1]) + 200;
+		this.left = newleftCoordinates[0][0] + this.canvas.width / 2;
+
+		this.height = Math.round(newleftCoordinates[1][1] - this.top + 200) * 4;
+		this.width =
+			Math.round(
+				newrightCoordinates[1][0] - this.left + this.canvas.width / 2
+			) * 6;
+
+		this.player.renderBike(
+			this.context,
+			this.playerBike,
+			this.left,
+			this.top,
+			this.width,
+			this.height
+		);
 	};
 
 	/**
@@ -346,7 +418,7 @@ class RoadRash {
 		}
 		if (this.keyPressed['a'] || this.keyPressed['ArrowLeft']) {
 			if (this.velocity != 0) {
-				if (Math.round(this.xMin) < Math.round(this.player.position)) {
+				if (Math.round(this.xMin) < Math.round(this.left)) {
 					this.player.position -= 5;
 				} else {
 					this.velocity = Math.round(this.velocity / 2);
@@ -356,7 +428,7 @@ class RoadRash {
 		}
 		if (this.keyPressed['d'] || this.keyPressed['ArrowRight']) {
 			if (this.velocity != 0) {
-				if (Math.round(this.xMax) > Math.round(this.player.position)) {
+				if (Math.round(this.xMax) > Math.round(this.left)) {
 					this.player.position += 5;
 				} else {
 					this.player.position -= 5;
@@ -385,15 +457,34 @@ class RoadRash {
 			this.index = nextIndex;
 	};
 
+	addObstacles = () => {
+		this.cars.getCarAssets(this.carAsset);
+	};
+
+	setAudio = () => {
+		if (this.velocity <= 0) {
+			this.audio.playIdleSound();
+		} else {
+			this.audio.playRideSound();
+		}
+	};
+
+	backgroundColorSet = () => {
+		this.context.fillStyle = 'lightblue';
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	};
+
 	/* The main function that is called in the start function. It is used to detect the key pressed by the
 	user. */
 	updateGameArea = async () => {
 		this.clear();
+		this.backgroundColorSet();
 		await this.createRoad();
 		this.renderPlayer();
 		this.movementAction();
 		this.velocityChange();
 		this.player.transitionAnimation(this.velocity, this.keyPressed);
+		this.setAudio();
 	};
 }
 
@@ -402,6 +493,7 @@ const startGame = async () => {
 	await newGame.loadAssets(false);
 	newGame.start();
 	newGame.movementPlayer();
+	newGame.addObstacles();
 };
 
 startGame();

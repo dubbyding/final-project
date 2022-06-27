@@ -3,7 +3,7 @@
  */
 class Bike {
 	constructor() {
-		this.currentWidth = 2;
+		this.currentWidth = 2.5;
 		this.bikeStates = {
 			wait: {
 				top: 5,

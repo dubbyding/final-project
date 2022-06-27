@@ -1,4 +1,5 @@
 import { Obstacle } from './obstacles.js';
+import { MathImplement } from '../math.js';
 
 class Cars extends Obstacle {
 	constructor() {
@@ -6,6 +7,10 @@ class Cars extends Obstacle {
 	}
 	carAssets = () => {
 		return this.obstacleAssets('cars');
+	};
+
+	getCarAssets = (cars) => {
+		this.cars = cars;
 	};
 }
 

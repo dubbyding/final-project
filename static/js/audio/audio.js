@@ -1,0 +1,59 @@
+class Audio {
+	getAudios = async () => {
+		let value;
+		try {
+			const link = 'http://localhost:3000/getAssets/bikeAudio';
+			value = await fetch(link);
+			value = await value.json();
+		} catch (e) {
+			console.log(e);
+			value = await fetch(
+				`https://roadrash-api.herokuapp.com/getAssets/bikeAudio`
+			);
+			value = await value.json();
+		}
+		this.idle = value['list'][0];
+		this.ride = value['list'][1];
+		return value;
+	};
+
+	createIdleSound = async () => {
+		this.audioIdle = document.createElement('audio');
+		this.audioIdle.src = this.idle;
+		this.audioIdle.setAttribute('preload', 'auto');
+		this.audioIdle.setAttribute('control', 'none');
+		this.audioIdle.loop = true;
+		this.audioIdle.style.display = 'none';
+
+		document.body.appendChild(this.audioIdle);
+		return this.audioIdle;
+	};
+
+	createRideSound = async () => {
+		this.audioRide = document.createElement('audio');
+		this.audioRide.src = this.ride;
+		this.audioRide.setAttribute('preload', 'auto');
+		this.audioRide.setAttribute('control', 'none');
+		this.audioRide.loop = true;
+		this.audioRide.style.display = 'none';
+
+		document.body.appendChild(this.audioRide);
+		return this.audioRide;
+	};
+
+	playIdleSound = async () => {
+		try {
+			this.audioRide.pause();
+		} catch {
+			console.log('Play Start');
+		}
+		this.audioIdle.play();
+	};
+
+	playRideSound = () => {
+		this.audioIdle.pause();
+		this.audioRide.play();
+	};
+}
+
+export { Audio };
