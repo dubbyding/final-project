@@ -31,6 +31,9 @@ class RoadRash {
 
 		this.road = new Road(this.canvas.width, this.canvas.height);
 
+		this.gameLoading = 0;
+		this.gameLoadingTotal = 17;
+
 		this.startGameFlag = false;
 
 		this.index = 0;
@@ -59,28 +62,42 @@ class RoadRash {
 
 		try {
 			await this.starter.getImage();
+			this.loadingGame();
 			await this.starter.createStartingAsset();
+			this.loadingGame();
 		} catch {
 			console.log('Error loading starting image');
 		}
 		// Audio Assets load
 		try {
 			await this.audio.getAudios();
+			this.loadingGame();
+
 			await this.audio.createIdleSound();
+			this.loadingGame();
+
 			await this.audio.createRideSound();
-		} catch (e) {
-			console.log(e);
+			this.loadingGame();
+		} catch {
 			console.log('Error loading audio');
 		}
 
 		// Characters Assets load
 		try {
 			playerList = await this.player.playerAsset();
+			this.loadingGame();
+
 			policeList = await this.police.policeAsset();
+			this.loadingGame();
 
 			carsList = await this.cars.carAssets();
+			this.loadingGame();
+
 			farmList = await this.farms.farmAssets();
+			this.loadingGame();
+
 			treeList = await this.trees.treeAssets();
+			this.loadingGame();
 
 			this.roadAssets = await this.road.generateNVarietyOfRoads(
 				numberOfRoads,
@@ -92,18 +109,30 @@ class RoadRash {
 
 		try {
 			this.playerAsset = await this.assetsLoad(playerList);
+			this.loadingGame();
+
 			this.policeAsset = await this.assetsLoad(policeList);
+			this.loadingGame();
 
 			this.carAsset = await this.assetsLoad(carsList);
+			this.loadingGame();
+
 			this.farmAsset = await this.assetsLoad(farmList);
+			this.loadingGame();
+
 			this.treeAsset = await this.assetsLoad(treeList);
+			this.loadingGame();
 		} catch {
 			console.log('Error loading assets images');
 		}
 
 		try {
 			let bikeColorConsist = await this.player.playerBike(this.playerColor);
+			this.loadingGame();
+
 			this.playerBike = await this.assetsLoad(bikeColorConsist, false);
+			this.loadingGame();
+
 			this.playerBike = this.playerBike[0];
 		} catch {
 			this.playerBike = this.playerAsset[0];
@@ -114,6 +143,30 @@ class RoadRash {
 		 */
 		if (autoStartGame) this.start();
 		else return;
+	};
+
+	loadingGame = () => {
+		this.gameLoading++;
+
+		let percentLoad = (this.gameLoading / this.gameLoadingTotal) * 100;
+		this.displayLoading(percentLoad);
+		if (Math.round(percentLoad) >= 100) {
+			this.clear();
+			this.startingPageDisplay();
+		}
+	};
+
+	displayLoading = (percent) => {
+		this.clear();
+		this.context.fillStyle = '#000000';
+		this.context.font = '40px Arial';
+		let top = window.innerHeight / 2;
+		let left = window.innerWidth / 2;
+
+		this.context.fillText('Loading...', left, top);
+
+		this.context.font = '20px Arial';
+		this.context.fillText(`${Math.round(percent)}%`, left, top + 20);
 	};
 
 	/**
@@ -337,29 +390,29 @@ class RoadRash {
 		this.context.fillStyle = 'white';
 		this.context.fillText(playText, positionX, positionY);
 
-		document.addEventListener('mousedown', (e) => {
-			if (
-				e.clientX >= 350 &&
-				e.clientX <= 420 &&
-				e.clientY >= 350 &&
-				e.clientY <= 420
-			) {
-				const FRAMES = 60;
-				const SECOND = 1000;
-				const FPS = SECOND / FRAMES;
-				this.gameInterval = setInterval(this.updateGameArea, FPS);
-
-				this.movementPlayer();
-				this.addObstacles();
-			}
-		});
+		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
+	startButton = (e) => {
+		if (
+			e.clientX >= 350 &&
+			e.clientX <= 420 &&
+			e.clientY >= 350 &&
+			e.clientY <= 420
+		) {
+			const FRAMES = 60;
+			const SECOND = 1000;
+			const FPS = SECOND / FRAMES;
+			this.gameInterval = setInterval(this.updateGameArea, FPS);
 
+			this.movementPlayer();
+			this.addObstacles();
+
+			document.removeEventListener('mousedown', this.mouseEvent);
+		}
+	};
 	/* Setting the frame rate of the game and starting the game*/
 	start = () => {
 		this.context = this.canvas.getContext('2d');
-
-		if (!this.startGameFlag) this.startingPageDisplay();
 	};
 
 	/**
@@ -533,8 +586,8 @@ class RoadRash {
 
 const startGame = async () => {
 	let newGame = new RoadRash('root', 'red');
-	await newGame.loadAssets(false);
 	newGame.start();
+	await newGame.loadAssets(false);
 };
 
 startGame();

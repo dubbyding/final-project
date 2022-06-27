@@ -5,8 +5,7 @@ class Audio {
 			const link = 'http://localhost:3000/getAssets/bikeAudio';
 			value = await fetch(link);
 			value = await value.json();
-		} catch (e) {
-			console.log(e);
+		} catch {
 			value = await fetch(
 				`https://roadrash-api.herokuapp.com/getAssets/bikeAudio`
 			);

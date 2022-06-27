@@ -39,5 +39,4 @@ const getCurrentCoords = (index, roadAssets) => {
 		initialRightCoordinates,
 	];
 };
-
 export { createPath, getCurrentCoords };
