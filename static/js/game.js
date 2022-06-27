@@ -42,19 +42,14 @@ class RoadRash {
 
 		this.movement = false;
 
-		this.displayState = 0;
-
-		this.displayStateDuration = 0;
-
 		this.playerIndex = 2;
 	}
 	/**
 	 * @desc Loading all the assets of the game.
-	 * @param {boolean} autoStartGame - Status that auto starts the game after loading if true
 	 * */
-	loadAssets = async (autoStartGame = true) => {
-		const numberOfRoads = 100;
-		const numberOfPartition = 50;
+	loadAssets = async () => {
+		this.numberOfRoads = 100;
+		this.numberOfPartition = 50;
 
 		let playerList, policeList, carsList, farmList, treeList;
 
@@ -100,8 +95,8 @@ class RoadRash {
 			this.loadingGame();
 
 			this.roadAssets = await this.road.generateNVarietyOfRoads(
-				numberOfRoads,
-				numberOfPartition
+				this.numberOfRoads,
+				this.numberOfPartition
 			);
 		} catch (e) {
 			console.log('Error Loading Assets');
@@ -137,12 +132,6 @@ class RoadRash {
 		} catch {
 			this.playerBike = this.playerAsset[0];
 		}
-
-		/**
-		 * After fetching assets start the game
-		 */
-		if (autoStartGame) this.start();
-		else return;
 	};
 
 	loadingGame = () => {
@@ -156,6 +145,10 @@ class RoadRash {
 		}
 	};
 
+	/**
+	 * Display Loading screen
+	 * @param {Number} percent
+	 */
 	displayLoading = (percent) => {
 		this.clear();
 		this.context.fillStyle = '#000000';
@@ -363,6 +356,9 @@ class RoadRash {
 			2
 		);
 
+		this.topX = [x1 + leftDiffX, y1 * rightDiffY];
+		this.topY = [x2 + rightDiffX, y2 * rightDiffY];
+
 		createPath(
 			startingX,
 			startingY,
@@ -376,6 +372,7 @@ class RoadRash {
 	};
 
 	startingPageDisplay = () => {
+		this.clear();
 		let font = '40px italic Arial';
 		let playText = 'Play';
 
@@ -435,6 +432,9 @@ class RoadRash {
 		});
 	};
 
+	/**
+	 * Project Player from 3d space to 2d space
+	 */
 	renderPlayer = async () => {
 		if (!this.player.position) {
 			this.player.position = 0;
@@ -553,8 +553,97 @@ class RoadRash {
 			this.index = nextIndex;
 	};
 
-	addObstacles = () => {
-		this.cars.getCarAssets(this.carAsset);
+	addObstacles = async () => {
+		let newleftCoordinates,
+			newrightCoordinates,
+			initialLeftCoordinates,
+			initialRightCoordinates,
+			currentPlayerPosX,
+			currentPlayerPosY;
+		let roadAssets = this.roadAssets;
+		let carDisplayStatus = this.cars.getCarAssets(
+			this.carAsset,
+			roadAssets,
+			this.index
+		);
+		if (carDisplayStatus) {
+			[
+				newleftCoordinates,
+				newrightCoordinates,
+				initialLeftCoordinates,
+				initialRightCoordinates,
+			] = getCurrentCoords(this.index, this.roadAssets);
+
+			let carXMin = newleftCoordinates[newleftCoordinates.length - 1][0];
+			let carXMax = newrightCoordinates[newrightCoordinates.length - 1][0];
+			let currentCarX = this.math.generateRandomNumber(carXMin, carXMax);
+
+			let currentCarY =
+				initialLeftCoordinates[initialLeftCoordinates.length - 1][1];
+			let currentCarZ =
+				initialLeftCoordinates[initialLeftCoordinates.length - 1][2];
+
+			let currentWidth = this.cars.carPosition.width;
+			let currentHeight = this.cars.carPosition.height;
+			currentPlayerPosX = [
+				[currentCarX, currentCarY, currentCarZ],
+				[currentCarX, currentCarY + currentHeight, currentCarZ],
+			];
+			currentPlayerPosY = [
+				[currentCarX + currentWidth, currentCarY, currentCarZ],
+				[currentCarX + currentWidth, currentCarY + currentHeight, currentCarZ],
+			];
+
+			let carindex = this.math.generateRandomNumber(
+				0,
+				this.carAsset.length - 1
+			);
+			this.cars.setCurrentXAndY(currentPlayerPosX, currentPlayerPosY, carindex);
+		} else {
+			try {
+				let x, y, z;
+				[x, y, z] = this.cars.currentX[0];
+				y += 1.452;
+				z -= 0.01;
+				this.cars.currentX[0] = [x, y, z];
+
+				[x, y, z] = this.cars.currentX[1];
+				y += 1.452;
+				z -= 0.01;
+				this.cars.currentX[1] = [x, y, z];
+				currentPlayerPosX = this.cars.currentX;
+
+				[x, y, z] = this.cars.currentY[0];
+				y += 1.452;
+				z -= 0.01;
+				this.cars.currentY[0] = [x, y, z];
+
+				[x, y, z] = this.cars.currentY[1];
+				y += 1.452;
+				z -= 0.01;
+				this.cars.currentY[1] = [x, y, z];
+				currentPlayerPosY = this.cars.currentY;
+			} catch {
+				console.log('Not Loaded');
+			}
+		}
+		try {
+			[newleftCoordinates, newrightCoordinates] =
+				await this.road.generateProjectedCoordinates([
+					currentPlayerPosX,
+					currentPlayerPosY,
+				]);
+
+			let top = Math.round(newleftCoordinates[0][1]);
+			let left = newleftCoordinates[0][0];
+
+			let height = Math.round(newleftCoordinates[1][1] - top);
+			let width = Math.round(newrightCoordinates[1][0] - left);
+
+			this.cars.displayCar(this.context, left, top, width, height);
+		} catch {
+			console.log('Nothing to be displayed');
+		}
 	};
 
 	setAudio = () => {
@@ -581,13 +670,14 @@ class RoadRash {
 		this.velocityChange();
 		this.player.transitionAnimation(this.velocity, this.keyPressed);
 		this.setAudio();
+		this.addObstacles();
 	};
 }
 
 const startGame = async () => {
 	let newGame = new RoadRash('root', 'red');
 	newGame.start();
-	await newGame.loadAssets(false);
+	await newGame.loadAssets();
 };
 
 startGame();

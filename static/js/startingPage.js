@@ -18,7 +18,7 @@ class StartingPage {
 		this.startImage = value['img'];
 	};
 
-	createStartingAsset = () => {
+	createStartingAsset = async () => {
 		this.startingImage = new Image();
 		this.startingImage.src = this.startImage;
 		this.startingImage.style.width = window.innerWidth;
