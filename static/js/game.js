@@ -6,6 +6,7 @@ import { Trees } from './obstacles/tree.js';
 import { Road } from './road.js';
 import { Audio } from './audio/audio.js';
 import { MathImplement } from './math.js';
+import { StartingPage } from './startingPage.js';
 
 import { createPath, getCurrentCoords } from './utils.js';
 
@@ -14,6 +15,7 @@ class RoadRash {
 		this.id = id;
 		this.playerColor = playerColor;
 
+		this.starter = new StartingPage();
 		this.player = new Player(window.innerWidth);
 		this.police = new Police();
 		this.cars = new Cars();
@@ -28,6 +30,8 @@ class RoadRash {
 		this.canvas.height = parseInt(window.innerHeight);
 
 		this.road = new Road(this.canvas.width, this.canvas.height);
+
+		this.startGameFlag = false;
 
 		this.index = 0;
 
@@ -49,17 +53,27 @@ class RoadRash {
 		const numberOfRoads = 100;
 		const numberOfPartition = 50;
 
-		let playerList, policeList, carsList, farmList, treeList, audio;
+		let playerList, policeList, carsList, farmList, treeList;
 
+		// starter assets load
+
+		try {
+			await this.starter.getImage();
+			await this.starter.createStartingAsset();
+		} catch {
+			console.log('Error loading starting image');
+		}
+		// Audio Assets load
 		try {
 			await this.audio.getAudios();
 			await this.audio.createIdleSound();
-			console.log(await this.audio.createRideSound());
+			await this.audio.createRideSound();
 		} catch (e) {
 			console.log(e);
 			console.log('Error loading audio');
 		}
 
+		// Characters Assets load
 		try {
 			playerList = await this.player.playerAsset();
 			policeList = await this.police.policeAsset();
@@ -308,15 +322,44 @@ class RoadRash {
 		);
 	};
 
+	startingPageDisplay = () => {
+		let font = '40px italic Arial';
+		let playText = 'Play';
+
+		let positionX = 350;
+		let positionY = 400;
+
+		this.context.fillStyle = '#000000';
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.starter.drawImageBackground(this.context);
+
+		this.context.font = font;
+		this.context.fillStyle = 'white';
+		this.context.fillText(playText, positionX, positionY);
+
+		document.addEventListener('mousedown', (e) => {
+			if (
+				e.clientX >= 350 &&
+				e.clientX <= 420 &&
+				e.clientY >= 350 &&
+				e.clientY <= 420
+			) {
+				const FRAMES = 60;
+				const SECOND = 1000;
+				const FPS = SECOND / FRAMES;
+				this.gameInterval = setInterval(this.updateGameArea, FPS);
+
+				this.movementPlayer();
+				this.addObstacles();
+			}
+		});
+	};
+
 	/* Setting the frame rate of the game and starting the game*/
 	start = () => {
-		const FRAMES = 60;
-		const SECOND = 1000;
-		const FPS = SECOND / FRAMES;
-
 		this.context = this.canvas.getContext('2d');
 
-		this.gameInterval = setInterval(this.updateGameArea, FPS);
+		if (!this.startGameFlag) this.startingPageDisplay();
 	};
 
 	/**
@@ -492,8 +535,6 @@ const startGame = async () => {
 	let newGame = new RoadRash('root', 'red');
 	await newGame.loadAssets(false);
 	newGame.start();
-	newGame.movementPlayer();
-	newGame.addObstacles();
 };
 
 startGame();
