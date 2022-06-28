@@ -15,7 +15,41 @@ class Road {
 		this.p2 = [this.width, this.height, 0];
 		this.p3 = [-this.width / 2, 20, 50];
 		this.p4 = [this.width, 20, 50];
+
+		/**
+		 * Background Image Positions
+		 */
+		this.backgroundImagePositions = {
+			sky: {
+				top: 22,
+				left: 4,
+				width: 1024,
+				height: 64,
+			},
+			mountain: {
+				top: 22,
+				left: 76,
+				width: 1024,
+				height: 64,
+			},
+		};
 	}
+
+	/**
+	 * Function that fetches background assets from backend
+	 * @returns Object of background asset
+	 */
+	getBackgroundImage = async () => {
+		try {
+			const link = `http://localhost:3000/getAssets/backgroundImage`;
+			let value = await fetch(link);
+			return value.json();
+		} catch {
+			const link = `https://roadrash-api.herokuapp.com/getAssets/backgroundImage`;
+			let value = await fetch(link);
+			return value.json();
+		}
+	};
 
 	/**
 	 * @desc Function that generates points using fixed endpoints in three dimensions
@@ -184,6 +218,46 @@ class Road {
 	};
 
 	/**
+	 * Display Background Image
+	 * @param {Object} ctx - Context of the canvas
+	 * @param {Array} newleftCoordinates - Newly generated projected left side of the road
+	 * @param {Number} leftDiffX - Factor by which left-side of the road should be translated
+	 * @param {Object} backgroundImage - Image object of background image
+	 */
+	backgroundImageAdd = (
+		ctx,
+		newleftCoordinates,
+		leftDiffX,
+		backgroundImage
+	) => {
+		let transfromFactor =
+			newleftCoordinates[newleftCoordinates.length - 1][0] + leftDiffX;
+
+		ctx.drawImage(
+			backgroundImage[0],
+			this.backgroundImagePositions['sky'].top,
+			this.backgroundImagePositions['sky'].left,
+			this.backgroundImagePositions['sky'].width - transfromFactor,
+			this.backgroundImagePositions['sky'].height,
+			0,
+			0,
+			window.innerWidth,
+			this.backgroundImagePositions['sky'].height
+		);
+		ctx.drawImage(
+			backgroundImage[0],
+			this.backgroundImagePositions['mountain'].top,
+			this.backgroundImagePositions['mountain'].left,
+			this.backgroundImagePositions['mountain'].width - transfromFactor,
+			this.backgroundImagePositions['mountain'].height,
+			0,
+			this.backgroundImagePositions['sky'].height,
+			window.innerWidth,
+			this.backgroundImagePositions['mountain'].height * 2
+		);
+	};
+
+	/**
 	 * @desc Generates Roads
 	 * @param {Object} ctx - Context of the canvas
 	 * @param {Array} newleftCoordinates - Newly generated projected left side of the road
@@ -192,6 +266,7 @@ class Road {
 	 * @param {Number} rightDiffY - Factor by which road should be scaled
 	 * @param {Number} leftDiffX - Factor by which left-side of the road should be translated
 	 * @param {Number} index - Current index
+	
 	 * @returns Array of x-coordinates of both left and right side
 	 */
 	roadGenerate = (

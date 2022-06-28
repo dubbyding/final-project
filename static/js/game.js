@@ -54,7 +54,12 @@ class RoadRash {
 		this.numberOfRoads = 100;
 		this.numberOfPartition = 50;
 
-		let playerList, policeList, carsList, farmList, treeList;
+		let playerList,
+			policeList,
+			carsList,
+			farmList,
+			treeList,
+			roadBackgroundList;
 
 		// starter assets load
 
@@ -101,6 +106,10 @@ class RoadRash {
 				this.numberOfRoads,
 				this.numberOfPartition
 			);
+
+			this.loadingGame();
+			roadBackgroundList = await this.road.getBackgroundImage();
+			this.loadingGame();
 		} catch (e) {
 			console.log('Error Loading Assets');
 		}
@@ -119,6 +128,9 @@ class RoadRash {
 			this.loadingGame();
 
 			this.treeAsset = await this.assetsLoad(treeList);
+			this.loadingGame();
+
+			this.roadBackground = await this.assetsLoad(roadBackgroundList, false);
 			this.loadingGame();
 		} catch {
 			console.log('Error loading assets images');
@@ -251,6 +263,13 @@ class RoadRash {
 		this.xMin = newleftCoordinates[this.playerIndex][0] + leftDiffX;
 		this.xMax = newrightCoordinates[this.playerIndex][0] + rightDiffX;
 
+		this.road.backgroundImageAdd(
+			this.context,
+			newleftCoordinates,
+			leftDiffX,
+			this.roadBackground
+		);
+
 		[this.xleft, this.xright] = this.road.roadGenerate(
 			this.context,
 			newleftCoordinates,
@@ -303,7 +322,8 @@ class RoadRash {
 		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
 	/**
-	 *  @desc Creating a function that will be called when the user clicks on the start button.
+	 * @desc Creating a function that will be called when the user clicks on the start button.
+	 * @param e - Event of mousedown
 	 */
 	startButton = (e) => {
 		if (
