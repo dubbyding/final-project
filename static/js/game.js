@@ -7,8 +7,9 @@ import { Road } from './road.js';
 import { Audio } from './audio/audio.js';
 import { MathImplement } from './math.js';
 import { StartingPage } from './startingPage.js';
+import { Score } from './score.js';
 
-import { getCurrentCoords } from './utils.js';
+import { getCurrentCoords, createText } from './utils.js';
 
 class RoadRash {
 	constructor(id, playerColor) {
@@ -23,6 +24,7 @@ class RoadRash {
 		this.trees = new Trees();
 		this.audio = new Audio();
 		this.math = new MathImplement();
+		this.score = new Score();
 
 		this.canvas = document.getElementById(this.id);
 
@@ -32,7 +34,7 @@ class RoadRash {
 		this.road = new Road(this.canvas.width, this.canvas.height);
 
 		this.gameLoading = 0;
-		this.gameLoadingTotal = 17;
+		this.gameLoadingTotal = 22;
 
 		this.startGameFlag = false;
 
@@ -60,6 +62,16 @@ class RoadRash {
 			farmList,
 			treeList,
 			roadBackgroundList;
+
+		// Load Scores
+		try {
+			this.listOfScore = await this.score.getScore();
+			this.loadingGame();
+			await this.score.getHighScore(this.listOfScore);
+			this.loadingGame();
+		} catch {
+			console.log('Error Getting Score');
+		}
 
 		// starter assets load
 
@@ -149,6 +161,9 @@ class RoadRash {
 		}
 	};
 
+	/**
+	 * @desc Showing loading percent as the game is loaded
+	 */
 	loadingGame = () => {
 		this.gameLoading++;
 
@@ -317,6 +332,7 @@ class RoadRash {
 		this.clear();
 		let font = '40px italic Arial';
 		let playText = 'Play';
+		let scoreText = 'Scores';
 
 		let positionX = 350;
 		let positionY = 400;
@@ -328,6 +344,7 @@ class RoadRash {
 		this.context.font = font;
 		this.context.fillStyle = 'white';
 		this.context.fillText(playText, positionX, positionY);
+		this.context.fillText(scoreText, positionX, positionY + 50);
 
 		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
@@ -357,8 +374,68 @@ class RoadRash {
 
 			document.removeEventListener('mousedown', this.mouseEvent);
 		}
+		if (
+			e.clientX >= 350 &&
+			e.clientX <= 450 &&
+			e.clientY >= 425 &&
+			e.clientY <= 445
+		) {
+			document.removeEventListener('mousedown', this.mouseEvent);
+			this.showScoreArea();
+		}
 	};
 
+	/**
+	 * Display Scores
+	 */
+	showScoreArea = () => {
+		let scoreToBeDisplayed = this.score.scoreArray.slice(0, 5);
+
+		this.clear();
+
+		let currentIndex = 100;
+		createText(
+			this.context,
+			'50px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			50,
+			'High Score'
+		);
+		for (let index in scoreToBeDisplayed) {
+			createText(
+				this.context,
+				'20px Ariel',
+				'#000',
+				this.canvas.width / 2 - 100,
+				currentIndex,
+				`${parseInt(index) + 1}: ${scoreToBeDisplayed[index]}`
+			);
+			currentIndex += 50;
+		}
+		createText(this.context, '30px Ariel', '#ff0000', 20, 60, 'Main Menu');
+
+		this.highScoreMouseEvent = document.addEventListener(
+			'mousedown',
+			this.highScoreMouseClick
+		);
+	};
+
+	/**
+	 * Event Listener for highScore page
+	 * @param {Object} e - Event on click
+	 */
+	highScoreMouseClick = (e) => {
+		if (e.clientX > 20 && e.clientX < 160 && e.clientY > 40 && e.clientY < 60) {
+			document.removeEventListener('mousedown', this.highScoreMouseEvent);
+			this.startingPageDisplay();
+		}
+	};
+
+	/**
+	 * Display Starting counter ingame
+	 * @returns promise to make game pause
+	 */
 	startCounter = () => {
 		return new Promise((resolve) => {
 			let currentInterval = setInterval(async () => {
@@ -402,11 +479,11 @@ class RoadRash {
 	 */
 	movementPlayer = () => {
 		this.keyPressed = {};
-		document.addEventListener('keydown', (e) => {
+		this.movementDownEvent = document.addEventListener('keydown', (e) => {
 			this.movement = true;
 			this.keyPressed[e.key] = true;
 		});
-		document.addEventListener('keyup', (e) => {
+		this.movementUpEvent = document.addEventListener('keyup', (e) => {
 			this.movement = false;
 			delete this.keyPressed[e.key];
 		});
@@ -532,7 +609,7 @@ class RoadRash {
 	/**
 	 * @desc Changing the velocity of the bike.
 	 */
-	velocityChange = () => {
+	velocityChange = async () => {
 		const SPEED_LIMIT = 80;
 		if (!this.movement) {
 			if (this.velocity > 0) {
@@ -548,6 +625,13 @@ class RoadRash {
 
 		if (nextIndex + 10 < this.roadAssets[0].length - 1 && nextIndex >= 0)
 			this.index = nextIndex;
+		if (nextIndex + 10 < this.roadAssets[0].length) {
+			clearInterval(this.gameInterval);
+			document.removeEventListener('keydown', this.movementDownEvent);
+			document.removeEventListener('keyup', this.movementUpEvent);
+			if (await this.score.setScore(this.currentTime)) this.showScoreArea();
+			else location.reload();
+		}
 	};
 
 	/**
