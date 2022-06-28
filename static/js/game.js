@@ -36,6 +36,9 @@ class RoadRash {
 
 		this.startGameFlag = false;
 
+		this.carY = 1.452;
+		this.carZ = 0.01;
+
 		this.index = 0;
 
 		this.velocity = 0;
@@ -501,6 +504,22 @@ class RoadRash {
 		);
 	};
 
+	checkObstacleCollision = () => {
+		if (
+			this.carTop * 2 + this.carHeight + 100 > this.top &&
+			this.top + this.height > this.carTop * 2 + 100 &&
+			this.carLeft < this.left + this.width &&
+			this.carLeft + this.carWidth > this.left
+		) {
+			this.velocity = 0;
+			this.carY = 0;
+			this.carZ = 0;
+		} else {
+			this.carY = 1.452;
+			this.carZ = 0.01;
+		}
+	};
+
 	/**
 	 * This function gives the actual movement activities
 	 */
@@ -614,24 +633,24 @@ class RoadRash {
 			try {
 				let x, y, z;
 				[x, y, z] = this.cars.currentX[0];
-				y += 1.452;
-				z -= 0.01;
+				y += this.carY;
+				z -= this.carZ;
 				this.cars.currentX[0] = [x, y, z];
 
 				[x, y, z] = this.cars.currentX[1];
-				y += 1.452;
-				z -= 0.01;
+				y += this.carY;
+				z -= this.carZ;
 				this.cars.currentX[1] = [x, y, z];
 				currentPlayerPosX = this.cars.currentX;
 
 				[x, y, z] = this.cars.currentY[0];
-				y += 1.452;
-				z -= 0.01;
+				y += this.carY;
+				z -= this.carZ;
 				this.cars.currentY[0] = [x, y, z];
 
 				[x, y, z] = this.cars.currentY[1];
-				y += 1.452;
-				z -= 0.01;
+				y += this.carY;
+				z -= this.carZ;
 				this.cars.currentY[1] = [x, y, z];
 				currentPlayerPosY = this.cars.currentY;
 			} catch {
@@ -647,16 +666,19 @@ class RoadRash {
 
 			this.carTop = Math.round(newleftCoordinates[0][1]);
 			this.carLeft = newleftCoordinates[0][0] + this.cars.xLeftPos;
-			let currentZCheck = currentPlayerPosX[0][2];
+			this.currentZCheckCar = currentPlayerPosX[0][2];
 
 			this.carHeight = Math.round(newleftCoordinates[1][1] - this.carTop);
 			this.carWidth = Math.round(
 				newrightCoordinates[1][0] - this.carLeft + this.cars.xLeftPos
 			);
-			if (currentZCheck > 0) {
-				let diffLeft = this.xleft[Math.round(currentZCheck)] - this.carLeft;
+			if (this.currentZCheckCar > 0) {
+				let diffLeft =
+					this.xleft[Math.round(this.currentZCheckCar)] - this.carLeft;
 				let diffRight =
-					this.carLeft + this.carWidth - this.xright[Math.round(currentZCheck)];
+					this.carLeft +
+					this.carWidth -
+					this.xright[Math.round(this.currentZCheckCar)];
 				if (diffLeft < 0) {
 					this.carLeft += diffLeft;
 				}
@@ -699,11 +721,12 @@ class RoadRash {
 		this.backgroundColorSet();
 		await this.createRoad();
 		this.renderPlayer();
-		this.movementAction();
-		this.velocityChange();
 		this.player.transitionAnimation(this.velocity, this.keyPressed);
 		this.setAudio();
+		this.movementAction();
+		this.checkObstacleCollision();
 		this.addObstacles();
+		this.velocityChange();
 	};
 }
 
