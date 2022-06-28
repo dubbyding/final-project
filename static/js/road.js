@@ -443,6 +443,36 @@ class Road {
 			ctx
 		);
 	};
+	createFinishLine = (
+		ctx,
+		newleftCoordinates,
+		newrightCoordinates,
+		rightDiffX,
+		rightDiffY,
+		leftDiffX
+	) => {
+		if (!this.lineIndex) {
+			this.lineIndex = 9;
+		}
+		if (this.lineIndex >= 0) {
+			let x1, y1, x2, y2;
+
+			[x1, y1] = newleftCoordinates[Math.round(this.lineIndex)];
+			[x2, y2] = newrightCoordinates[Math.round(this.lineIndex)];
+
+			createPath(
+				x1 + leftDiffX,
+				y1 * rightDiffY,
+				x2 + rightDiffX,
+				y2 * rightDiffY,
+				'#FF0000',
+				10,
+				[20],
+				ctx
+			);
+			this.lineIndex -= 0.1;
+		}
+	};
 }
 
 export { Road };

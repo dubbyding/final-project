@@ -8,7 +8,7 @@ import { Audio } from './audio/audio.js';
 import { MathImplement } from './math.js';
 import { StartingPage } from './startingPage.js';
 
-import { createPath, getCurrentCoords } from './utils.js';
+import { getCurrentCoords } from './utils.js';
 
 class RoadRash {
 	constructor(id, playerColor) {
@@ -298,6 +298,16 @@ class RoadRash {
 			leftDiffX,
 			this.index
 		);
+		if (Math.round(this.index) + 20 >= this.roadAssets[0].length - 1) {
+			this.road.createFinishLine(
+				this.context,
+				newleftCoordinates,
+				newrightCoordinates,
+				rightDiffX,
+				rightDiffY,
+				leftDiffX
+			);
+		}
 	};
 
 	/**
@@ -325,13 +335,16 @@ class RoadRash {
 	 * @desc Creating a function that will be called when the user clicks on the start button.
 	 * @param e - Event of mousedown
 	 */
-	startButton = (e) => {
+	startButton = async (e) => {
 		if (
 			e.clientX >= 350 &&
 			e.clientX <= 420 &&
 			e.clientY >= 350 &&
 			e.clientY <= 420
 		) {
+			this.initialCount = 3;
+			await this.startCounter();
+
 			const FRAMES = 60;
 			const SECOND = 1000;
 			const FPS = SECOND / FRAMES;
@@ -340,9 +353,36 @@ class RoadRash {
 			this.movementPlayer();
 			this.addObstacles();
 
+			this.startingSecond = Date.now();
+
 			document.removeEventListener('mousedown', this.mouseEvent);
 		}
 	};
+
+	startCounter = () => {
+		return new Promise((resolve) => {
+			let currentInterval = setInterval(async () => {
+				this.clear();
+				this.backgroundColorSet();
+				await this.createRoad();
+				this.renderPlayer();
+				this.context.fillStyle = '#ffffff';
+				this.context.font = `40px Ariel`;
+
+				this.context.fillText(
+					this.initialCount,
+					this.canvas.width / 2,
+					this.canvas.height / 2
+				);
+				if (this.initialCount <= 0) {
+					clearInterval(currentInterval);
+					resolve();
+				}
+				this.initialCount--;
+			}, 1000);
+		});
+	};
+
 	/**
 	 * @desc Setting the frame rate of the game and starting the game
 	 */
@@ -655,6 +695,17 @@ class RoadRash {
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
+	displayTime = () => {
+		this.currentTime = Date.now() - this.startingSecond;
+		this.context.fillStyle = '#000000';
+		this.context.font = `20px Ariel`;
+		this.context.fillText(
+			`Time:- ${Math.floor(this.currentTime / 1000)}s`,
+			this.canvas.width - 120,
+			this.canvas.height / 3
+		);
+	};
+
 	/**
 	 * @desc The main function that is called in the start function. It is used to detect the key pressed by the
 	user. 
@@ -664,6 +715,7 @@ class RoadRash {
 		this.backgroundColorSet();
 		await this.createRoad();
 		this.renderPlayer();
+		this.displayTime();
 		this.player.transitionAnimation(this.velocity, this.keyPressed);
 		this.setAudio();
 		this.movementAction();
