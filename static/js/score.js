@@ -36,7 +36,7 @@ class Score {
 			}
 		} catch {
 			const response = await fetch(
-				'hhttps://roadrash-api.herokuapp.com/score/setScore',
+				'https://roadrash-api.herokuapp.com/score/setScore',
 				{
 					method: 'POST',
 					headers: {

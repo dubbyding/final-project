@@ -625,7 +625,7 @@ class RoadRash {
 
 		if (nextIndex + 10 < this.roadAssets[0].length - 1 && nextIndex >= 0)
 			this.index = nextIndex;
-		if (nextIndex + 10 < this.roadAssets[0].length) {
+		if (nextIndex + 10 >= this.roadAssets[0].length) {
 			clearInterval(this.gameInterval);
 			document.removeEventListener('keydown', this.movementDownEvent);
 			document.removeEventListener('keyup', this.movementUpEvent);
