@@ -14,7 +14,7 @@ class Player extends Bike {
 	}
 
 	/**
-	 * Get player's assets
+	 * @desc Get player's assets
 	 * @returns Promise of list of player's bikes
 	 */
 	playerAsset = () => {
@@ -30,7 +30,9 @@ class Player extends Bike {
 		return this.checkBikeColor(color);
 	};
 
-	/* Drawing the bike on the canvas. */
+	/**
+	 *  @desc Drawing the bike on the canvas.
+	 */
 	renderBike = (ctx, bike, top, left, width, height) => {
 		ctx.drawImage(
 			bike,

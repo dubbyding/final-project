@@ -233,7 +233,7 @@ class RoadRash {
 				initialRightCoordinates[i][2],
 			]);
 		}
-		// console.log(leftCoordinates);
+
 		[newleftCoordinates, newrightCoordinates] =
 			await this.road.generateProjectedCoordinates([
 				currentCoordinatesLeft,
@@ -251,136 +251,39 @@ class RoadRash {
 		this.xMin = newleftCoordinates[this.playerIndex][0] + leftDiffX;
 		this.xMax = newrightCoordinates[this.playerIndex][0] + rightDiffX;
 
-		this.xleft = [];
-		this.xright = [];
-
-		for (let i = 0; i < 9; i++) {
-			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
-			[xright1, yright1] = newrightCoordinates[i];
-			[xright2, yright2] = newrightCoordinates[i + 1];
-
-			this.xright.push(xright1 + rightDiffX);
-
-			createPath(
-				xright1 + rightDiffX,
-				yright1 * rightDiffY,
-				xright2 + rightDiffX,
-				yright2 * rightDiffY,
-				'#000000',
-				10,
-				[Math.round(this.index) % 100],
-				this.context
-			);
-
-			[xleft1, yleft1] = newleftCoordinates[i];
-			[xleft2, yleft2] = newleftCoordinates[i + 1];
-
-			this.xleft.push(xleft1 + leftDiffX);
-
-			createPath(
-				xleft1 + leftDiffX,
-				yleft1 * rightDiffY,
-				xleft2 + leftDiffX,
-				yleft2 * rightDiffY,
-				'#000000',
-				10,
-				[Math.round(this.index) % 100],
-				this.context
-			);
-		}
-
-		let startingX, startingY, endingX, endingY;
-
-		let x1, y1, x2, y2;
-		// Set road color
-		this.context.beginPath();
-		this.context.lineWidth = 0;
-		this.context.setLineDash([]);
-		this.context.fillStyle = '#47484c';
-
-		[x1, y1] = newrightCoordinates[0];
-		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
-
-		this.context.moveTo(x1 + rightDiffX, y1 * rightDiffY);
-		this.context.lineTo(x2 + rightDiffX, y2 * rightDiffY);
-
-		[x2, y2] = newleftCoordinates[newleftCoordinates.length - 1];
-
-		this.context.lineTo(x2 + leftDiffX, y2 * rightDiffY);
-
-		[x2, y2] = newleftCoordinates[0];
-		this.context.lineTo(x2 + leftDiffX, y2 * rightDiffY);
-		this.context.lineTo(x1 + rightDiffX, y1 * rightDiffY);
-
-		this.context.fill();
-		this.context.closePath();
-
-		[x1, y1] = newleftCoordinates[0];
-		[x2, y2] = newrightCoordinates[0];
-
-		[startingX, startingY] = this.math.sectionFormula(
-			[x1 + leftDiffX, y1 * rightDiffY],
-			[x2 + rightDiffX, y2 * rightDiffY],
-			2,
-			1
+		[this.xleft, this.xright] = this.road.roadGenerate(
+			this.context,
+			newleftCoordinates,
+			newrightCoordinates,
+			rightDiffX,
+			rightDiffY,
+			leftDiffX,
+			this.index
 		);
 
-		[x1, y1] = newleftCoordinates[newleftCoordinates.length - 1];
-		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
-
-		[endingX, endingY] = this.math.sectionFormula(
-			[x1 + leftDiffX, y1 * rightDiffY],
-			[x2 + rightDiffX, y2 * rightDiffY],
-			2,
-			1
+		this.road.colorRoad(
+			this.context,
+			newrightCoordinates,
+			newleftCoordinates,
+			rightDiffX,
+			rightDiffY,
+			leftDiffX
 		);
 
-		createPath(
-			startingX,
-			startingY,
-			endingX,
-			endingY,
-			'#000000',
-			10,
-			[Math.round(this.index) % 100],
-			this.context
-		);
-
-		[x1, y1] = newleftCoordinates[0];
-		[x2, y2] = newrightCoordinates[0];
-
-		[startingX, startingY] = this.math.sectionFormula(
-			[x1 + leftDiffX, y1 * rightDiffY],
-			[x2 + rightDiffX, y2 * rightDiffY],
-			1,
-			2
-		);
-
-		[x1, y1] = newleftCoordinates[newleftCoordinates.length - 1];
-		[x2, y2] = newrightCoordinates[newrightCoordinates.length - 1];
-
-		[endingX, endingY] = this.math.sectionFormula(
-			[x1 + leftDiffX, y1 * rightDiffY],
-			[x2 + rightDiffX, y2 * rightDiffY],
-			1,
-			2
-		);
-
-		this.topX = [x1 + leftDiffX, y1 * rightDiffY];
-		this.topY = [x2 + rightDiffX, y2 * rightDiffY];
-
-		createPath(
-			startingX,
-			startingY,
-			endingX,
-			endingY,
-			'#000000',
-			10,
-			[Math.round(this.index) % 100],
-			this.context
+		this.road.sideRoadLines(
+			this.context,
+			newleftCoordinates,
+			newrightCoordinates,
+			rightDiffX,
+			rightDiffY,
+			leftDiffX,
+			this.index
 		);
 	};
 
+	/**
+	 * @desc This function displays the starting page
+	 */
 	startingPageDisplay = () => {
 		this.clear();
 		let font = '40px italic Arial';
@@ -399,6 +302,9 @@ class RoadRash {
 
 		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
+	/**
+	 *  @desc Creating a function that will be called when the user clicks on the start button.
+	 */
 	startButton = (e) => {
 		if (
 			e.clientX >= 350 &&
@@ -417,19 +323,23 @@ class RoadRash {
 			document.removeEventListener('mousedown', this.mouseEvent);
 		}
 	};
-	/* Setting the frame rate of the game and starting the game*/
+	/**
+	 * @desc Setting the frame rate of the game and starting the game
+	 */
 	start = () => {
 		this.context = this.canvas.getContext('2d');
 	};
 
 	/**
-	 * Clear canvas
+	 * @desc Clear canvas
 	 */
 	clear = () => {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
-	/* A function that is called in the start function. It is used to detect the key pressed by the user. */
+	/**
+	 * @desc A function that is called in the start function. It is used to detect the key pressed by the user.
+	 */
 	movementPlayer = () => {
 		this.keyPressed = {};
 		document.addEventListener('keydown', (e) => {
@@ -443,7 +353,7 @@ class RoadRash {
 	};
 
 	/**
-	 * Project Player from 3d space to 2d space
+	 * @desc Project Player from 3d space to 2d space
 	 */
 	renderPlayer = async () => {
 		if (!this.player.position) {
@@ -504,6 +414,9 @@ class RoadRash {
 		);
 	};
 
+	/**
+	 * @desc Check Collision with cars
+	 */
 	checkObstacleCollision = () => {
 		if (
 			this.carTop * 2 + this.carHeight + 100 > this.top &&
@@ -521,7 +434,7 @@ class RoadRash {
 	};
 
 	/**
-	 * This function gives the actual movement activities
+	 * @desc This function gives the actual movement activities
 	 */
 	movementAction = () => {
 		let maxVelocity = 25;
@@ -556,7 +469,9 @@ class RoadRash {
 		}
 	};
 
-	/* Changing the velocity of the bike. */
+	/**
+	 * @desc Changing the velocity of the bike.
+	 */
 	velocityChange = () => {
 		const SPEED_LIMIT = 80;
 		if (!this.movement) {
@@ -575,7 +490,9 @@ class RoadRash {
 			this.index = nextIndex;
 	};
 
-	/* The above code is used to display the car on the canvas. */
+	/**
+	 * @desc The above code is used to display the car on the canvas.
+	 */
 	addObstacles = async () => {
 		let newleftCoordinates,
 			newrightCoordinates,
@@ -699,7 +616,9 @@ class RoadRash {
 		}
 	};
 
-	/* Playing a different sound when in different velocity */
+	/**
+	 * @desc Playing a different sound when in different velocity
+	 */
 	setAudio = () => {
 		if (this.velocity <= 0) {
 			this.audio.playIdleSound();
@@ -708,14 +627,18 @@ class RoadRash {
 		}
 	};
 
-	/* Setting the background color of the canvas to lightblue. */
+	/**
+	 * @desc Setting the background color of the canvas to lightblue.
+	 */
 	backgroundColorSet = () => {
 		this.context.fillStyle = 'lightblue';
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
-	/* The main function that is called in the start function. It is used to detect the key pressed by the
-	user. */
+	/**
+	 * @desc The main function that is called in the start function. It is used to detect the key pressed by the
+	user. 
+	*/
 	updateGameArea = async () => {
 		this.clear();
 		this.backgroundColorSet();
@@ -730,6 +653,9 @@ class RoadRash {
 	};
 }
 
+/**
+ * Starting game function
+ */
 const startGame = async () => {
 	let newGame = new RoadRash('root', 'red');
 	newGame.start();
