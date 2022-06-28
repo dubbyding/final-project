@@ -26,7 +26,7 @@ class Cars extends Obstacle {
 		this.totalLength = this.roadAssets[0].length;
 
 		this.totalNumberOfCarsPerRoad = Math.round(
-			this.totalLength / (this.carsPerRoad )
+			this.totalLength / this.carsPerRoad
 		);
 
 		if (this.index % this.totalNumberOfCarsPerRoad == 0 && this.index != 0) {
@@ -55,7 +55,7 @@ class Cars extends Obstacle {
 			this.carPosition.left,
 			this.carPosition.width,
 			this.carPosition.height,
-			left + window.innerWidth / 2,
+			left,
 			top * 2,
 			width * this.multiplyFactor,
 			height * this.multiplyFactor

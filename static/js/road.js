@@ -151,7 +151,7 @@ class Road {
 		return newCords;
 	};
 
-	generateProjectedCoordinates = async (cords) => {
+	generateProjectedCoordinates = async (cords, zaxis = false) => {
 		let newCords = [];
 		cords.forEach((section) => {
 			let newSectionCoords = [];
@@ -167,7 +167,7 @@ class Road {
 						60,
 						1,
 						-1,
-						false
+						zaxis
 					)
 				);
 			});

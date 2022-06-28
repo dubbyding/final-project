@@ -248,10 +248,15 @@ class RoadRash {
 		this.xMin = newleftCoordinates[this.playerIndex][0] + leftDiffX;
 		this.xMax = newrightCoordinates[this.playerIndex][0] + rightDiffX;
 
+		this.xleft = [];
+		this.xright = [];
+
 		for (let i = 0; i < 9; i++) {
 			let xleft1, yleft1, xleft2, yleft2, xright1, yright1, xright2, yright2;
 			[xright1, yright1] = newrightCoordinates[i];
 			[xright2, yright2] = newrightCoordinates[i + 1];
+
+			this.xright.push(xright1 + rightDiffX);
 
 			createPath(
 				xright1 + rightDiffX,
@@ -266,6 +271,8 @@ class RoadRash {
 
 			[xleft1, yleft1] = newleftCoordinates[i];
 			[xleft2, yleft2] = newleftCoordinates[i + 1];
+
+			this.xleft.push(xleft1 + leftDiffX);
 
 			createPath(
 				xleft1 + leftDiffX,
@@ -513,23 +520,19 @@ class RoadRash {
 			}
 		}
 		if (this.keyPressed['a'] || this.keyPressed['ArrowLeft']) {
-			if (this.velocity != 0) {
-				if (Math.round(this.xMin) < Math.round(this.left)) {
-					this.player.position -= 5;
-				} else {
-					this.velocity = Math.round(this.velocity / 2);
-					this.player.position += 5;
-				}
+			if (Math.round(this.xMin) < Math.round(this.left)) {
+				this.player.position -= 5;
+			} else {
+				this.velocity = Math.round(this.velocity / 2);
+				this.player.position += 5;
 			}
 		}
 		if (this.keyPressed['d'] || this.keyPressed['ArrowRight']) {
-			if (this.velocity != 0) {
-				if (Math.round(this.xMax) > Math.round(this.left)) {
-					this.player.position += 5;
-				} else {
-					this.player.position -= 5;
-					this.velocity = Math.round(this.velocity / 2);
-				}
+			if (Math.round(this.xMax) > Math.round(this.left)) {
+				this.player.position += 5;
+			} else {
+				this.player.position -= 5;
+				this.velocity = Math.round(this.velocity / 2);
 			}
 		}
 	};
@@ -553,13 +556,16 @@ class RoadRash {
 			this.index = nextIndex;
 	};
 
+	/* The above code is used to display the car on the canvas. */
 	addObstacles = async () => {
 		let newleftCoordinates,
 			newrightCoordinates,
 			initialLeftCoordinates,
 			initialRightCoordinates,
 			currentPlayerPosX,
-			currentPlayerPosY;
+			currentPlayerPosY,
+			currentCarY,
+			currentCarZ;
 		let roadAssets = this.roadAssets;
 		let carDisplayStatus = this.cars.getCarAssets(
 			this.carAsset,
@@ -578,10 +584,15 @@ class RoadRash {
 			let carXMax = newrightCoordinates[newrightCoordinates.length - 1][0];
 			let currentCarX = this.math.generateRandomNumber(carXMin, carXMax);
 
-			let currentCarY =
+			// Used for translation
+			this.cars.xLeftPos = -carXMin;
+
+			currentCarY =
 				initialLeftCoordinates[initialLeftCoordinates.length - 1][1];
-			let currentCarZ =
+			currentCarZ =
 				initialLeftCoordinates[initialLeftCoordinates.length - 1][2];
+
+			this.carZAxis = currentCarZ;
 
 			let currentWidth = this.cars.carPosition.width;
 			let currentHeight = this.cars.carPosition.height;
@@ -624,7 +635,7 @@ class RoadRash {
 				this.cars.currentY[1] = [x, y, z];
 				currentPlayerPosY = this.cars.currentY;
 			} catch {
-				console.log('Not Loaded');
+				// console.log('Not Loaded');
 			}
 		}
 		try {
@@ -634,18 +645,39 @@ class RoadRash {
 					currentPlayerPosY,
 				]);
 
-			let top = Math.round(newleftCoordinates[0][1]);
-			let left = newleftCoordinates[0][0];
+			this.carTop = Math.round(newleftCoordinates[0][1]);
+			this.carLeft = newleftCoordinates[0][0] + this.cars.xLeftPos;
+			let currentZCheck = currentPlayerPosX[0][2];
 
-			let height = Math.round(newleftCoordinates[1][1] - top);
-			let width = Math.round(newrightCoordinates[1][0] - left);
+			this.carHeight = Math.round(newleftCoordinates[1][1] - this.carTop);
+			this.carWidth = Math.round(
+				newrightCoordinates[1][0] - this.carLeft + this.cars.xLeftPos
+			);
+			if (currentZCheck > 0) {
+				let diffLeft = this.xleft[Math.round(currentZCheck)] - this.carLeft;
+				let diffRight =
+					this.carLeft + this.carWidth - this.xright[Math.round(currentZCheck)];
+				if (diffLeft < 0) {
+					this.carLeft += diffLeft;
+				}
+				if (diffRight < 0) {
+					this.carLeft -= diffRight;
+				}
+			}
 
-			this.cars.displayCar(this.context, left, top, width, height);
+			this.cars.displayCar(
+				this.context,
+				this.carLeft,
+				this.carTop,
+				this.carWidth,
+				this.carHeight
+			);
 		} catch {
-			console.log('Nothing to be displayed');
+			// console.log('Nothing to be displayed');
 		}
 	};
 
+	/* Playing a different sound when in different velocity */
 	setAudio = () => {
 		if (this.velocity <= 0) {
 			this.audio.playIdleSound();
@@ -654,6 +686,7 @@ class RoadRash {
 		}
 	};
 
+	/* Setting the background color of the canvas to lightblue. */
 	backgroundColorSet = () => {
 		this.context.fillStyle = 'lightblue';
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
