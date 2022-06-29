@@ -12,12 +12,6 @@ class Score {
 	};
 
 	setScore = async (score) => {
-		if (this.currentHighScore < score) {
-			this.currentHighScore = score;
-			this.scoreArray.pop();
-			this.scoreArray.unshift(score);
-		}
-
 		try {
 			const response = await fetch('http://localhost:3000/score/setScore', {
 				method: 'POST',

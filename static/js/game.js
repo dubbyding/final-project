@@ -313,7 +313,7 @@ class RoadRash {
 			leftDiffX,
 			this.index
 		);
-		if (Math.round(this.index) + 20 >= this.roadAssets[0].length - 1) {
+		if (Math.round(this.index) + 40 >= this.roadAssets[0].length - 1) {
 			this.road.createFinishLine(
 				this.context,
 				newleftCoordinates,
@@ -330,6 +330,7 @@ class RoadRash {
 	 */
 	startingPageDisplay = () => {
 		this.clear();
+		this.gameEnd = true;
 		let font = '40px italic Arial';
 		let playText = 'Play';
 		let scoreText = 'Scores';
@@ -348,6 +349,7 @@ class RoadRash {
 
 		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
+
 	/**
 	 * @desc Creating a function that will be called when the user clicks on the start button.
 	 * @param e - Event of mousedown
@@ -359,6 +361,7 @@ class RoadRash {
 			e.clientY >= 350 &&
 			e.clientY <= 420
 		) {
+			document.removeEventListener('mousedown', this.mouseEvent);
 			this.initialCount = 3;
 			await this.startCounter();
 
@@ -371,8 +374,6 @@ class RoadRash {
 			this.addObstacles();
 
 			this.startingSecond = Date.now();
-
-			document.removeEventListener('mousedown', this.mouseEvent);
 		}
 		if (
 			e.clientX >= 350 &&
@@ -409,7 +410,7 @@ class RoadRash {
 				'#000',
 				this.canvas.width / 2 - 100,
 				currentIndex,
-				`${parseInt(index) + 1}: ${scoreToBeDisplayed[index]}`
+				`${parseInt(index) + 1}: ${scoreToBeDisplayed[index]} second`
 			);
 			currentIndex += 50;
 		}
@@ -604,6 +605,10 @@ class RoadRash {
 				this.velocity = Math.round(this.velocity / 2);
 			}
 		}
+		if (this.keyPressed['Escape']) {
+			this.clearEventsAfterGame();
+			this.endGame();
+		}
 	};
 
 	/**
@@ -625,13 +630,28 @@ class RoadRash {
 
 		if (nextIndex + 10 < this.roadAssets[0].length - 1 && nextIndex >= 0)
 			this.index = nextIndex;
-		if (nextIndex + 10 >= this.roadAssets[0].length) {
-			clearInterval(this.gameInterval);
-			document.removeEventListener('keydown', this.movementDownEvent);
-			document.removeEventListener('keyup', this.movementUpEvent);
-			if (await this.score.setScore(this.currentTime)) this.showScoreArea();
-			else location.reload();
+		if (nextIndex + 10 > this.roadAssets[0].length - 1) {
+			this.clearEventsAfterGame();
+
+			// Game End flag so that double score won't be posted
+			if (this.gameEnd) {
+				this.gameEnd = false;
+				if (await this.score.setScore(Math.floor(this.currentTime / 1000))) {
+					this.endGame();
+				}
+			}
 		}
+	};
+
+	clearEventsAfterGame = () => {
+		clearInterval(this.gameInterval);
+		document.removeEventListener('keydown', this.movementDownEvent);
+		document.removeEventListener('keyup', this.movementUpEvent);
+	};
+	endGame = async () => {
+		this.listOfScore = await this.score.getScore();
+		await this.score.getHighScore(this.listOfScore);
+		this.showScoreArea();
 	};
 
 	/**
