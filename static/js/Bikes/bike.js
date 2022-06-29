@@ -137,6 +137,69 @@ class Bike {
 			this.currentState = 'kickRight';
 		}
 	};
+
+	/**
+	 *  @desc Drawing the bike on the canvas.
+	 */
+	renderBike = (ctx, bike, top, left, width, height) => {
+		ctx.drawImage(
+			bike,
+			this.bikeStates[this.currentState].top,
+			this.bikeStates[this.currentState].left,
+			this.bikeStates[this.currentState].width,
+			this.bikeStates[this.currentState].height,
+			top,
+			left,
+			width,
+			height
+		);
+	};
+
+	/**
+	 * Gets current coordinates of the bike
+	 * @param {Object} canvas - Object of the canvas
+	 * @param {Object} road - Object of road
+	 * @param {Number} transformingFactor - Transforming factor to move to screen. Default is canvas.width/2
+	 * @returns Array of coordinates of the bike coordinates [top, left, height, width]
+	 */
+	bikeCoordinates = async (
+		canvas,
+		road,
+		transformingFactor = canvas.width / 2,
+		zAxisTranslate = 150
+	) => {
+		let newleftCoordinates, newrightCoordinates;
+
+		if (!this.position) {
+			this.position = 0;
+			this.height = canvas.height;
+		}
+
+		let currentPlayerPosX = [
+			[this.position, this.height, this.z],
+			[this.position, this.height + this.bikeHeight, this.z],
+		];
+		let currentPlayerPosY = [
+			[this.position + this.width, this.height, this.z],
+			[this.position + this.width, this.height + this.bikeHeight, this.z],
+		];
+
+		[newleftCoordinates, newrightCoordinates] =
+			await road.generateProjectedCoordinates([
+				currentPlayerPosX,
+				currentPlayerPosY,
+			]);
+
+		let top = Math.round(newleftCoordinates[0][1]) + zAxisTranslate;
+		let left = newleftCoordinates[0][0] + transformingFactor;
+
+		let height =
+			Math.round(newleftCoordinates[1][1] - top + zAxisTranslate) * 4;
+		let width =
+			Math.round(newrightCoordinates[1][0] - left + transformingFactor) * 6;
+
+		return [top, left, height, width];
+	};
 }
 
 export { Bike };

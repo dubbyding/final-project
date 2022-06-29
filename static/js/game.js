@@ -1,5 +1,6 @@
 import { Player } from './Bikes/player.js';
 import { Police } from './Bikes/police.js';
+import { Opponent } from './Bikes/opponents.js';
 import { Cars } from './obstacles/cars.js';
 import { Farms } from './obstacles/farms.js';
 import { Trees } from './obstacles/tree.js';
@@ -18,6 +19,7 @@ class RoadRash {
 
 		this.starter = new StartingPage();
 		this.player = new Player(window.innerWidth);
+		this.opponent = new Opponent();
 		this.police = new Police();
 		this.cars = new Cars();
 		this.farms = new Farms();
@@ -494,53 +496,8 @@ class RoadRash {
 	 * @desc Project Player from 3d space to 2d space
 	 */
 	renderPlayer = async () => {
-		if (!this.player.position) {
-			this.player.position = 0;
-			this.player.height = this.canvas.height;
-		}
-
-		let newleftCoordinates, newrightCoordinates;
-
-		[newleftCoordinates, newrightCoordinates] = getCurrentCoords(
-			this.index,
-			this.roadAssets
-		);
-
-		let currentPlayerPosX = [
-			[this.player.position, this.player.height, this.player.z],
-			[
-				this.player.position,
-				this.player.height + this.player.bikeHeight,
-				this.player.z,
-			],
-		];
-		let currentPlayerPosY = [
-			[
-				this.player.position + this.player.width,
-				this.player.height,
-				this.player.z,
-			],
-			[
-				this.player.position + this.player.width,
-				this.player.height + this.player.bikeHeight,
-				this.player.z,
-			],
-		];
-
-		[newleftCoordinates, newrightCoordinates] =
-			await this.road.generateProjectedCoordinates([
-				currentPlayerPosX,
-				currentPlayerPosY,
-			]);
-
-		this.top = Math.round(newleftCoordinates[0][1]) + 200;
-		this.left = newleftCoordinates[0][0] + this.canvas.width / 2;
-
-		this.height = Math.round(newleftCoordinates[1][1] - this.top + 200) * 4;
-		this.width =
-			Math.round(
-				newrightCoordinates[1][0] - this.left + this.canvas.width / 2
-			) * 6;
+		[this.top, this.left, this.height, this.width] =
+			await this.player.bikeCoordinates(this.canvas, this.road);
 
 		this.player.renderBike(
 			this.context,
@@ -643,11 +600,18 @@ class RoadRash {
 		}
 	};
 
+	/**
+	 * @desc Clear screen and remove eventlistners after game finish
+	 */
 	clearEventsAfterGame = () => {
 		clearInterval(this.gameInterval);
 		document.removeEventListener('keydown', this.movementDownEvent);
 		document.removeEventListener('keyup', this.movementUpEvent);
 	};
+
+	/**
+	 * @desc Sets highScore and shows highScore area
+	 */
 	endGame = async () => {
 		this.listOfScore = await this.score.getScore();
 		await this.score.getHighScore(this.listOfScore);
@@ -811,6 +775,13 @@ class RoadRash {
 	};
 
 	/**
+	 * @desc Add opponents to the screen
+	 */
+	addOpponent = () => {
+		this.opponent.getOpponentBike(this.playerAsset, this.playerColor);
+	};
+
+	/**
 	 * @desc The main function that is called in the start function. It is used to detect the key pressed by the
 	user. 
 	*/
@@ -826,6 +797,7 @@ class RoadRash {
 		this.checkObstacleCollision();
 		this.addObstacles();
 		this.velocityChange();
+		this.addOpponent();
 	};
 }
 
