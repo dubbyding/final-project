@@ -37,19 +37,6 @@ class RoadRash {
 
 		this.gameLoading = 0;
 		this.gameLoadingTotal = 23;
-
-		this.startGameFlag = false;
-
-		this.carY = 1.452;
-		this.carZ = 0.01;
-
-		this.index = 0;
-
-		this.velocity = 0;
-
-		this.movement = false;
-
-		this.playerIndex = 2;
 	}
 	/**
 	 * @desc Loading all the assets of the game.
@@ -369,13 +356,35 @@ class RoadRash {
 			e.clientY >= 350 &&
 			e.clientY <= 420
 		) {
-			document.removeEventListener('mousedown', this.mouseEvent);
+			this.carY = 1.452;
+			this.carZ = 0.01;
+
+			this.index = 0;
+
+			this.velocity = 0;
+
+			this.movement = false;
+
+			this.playerIndex = 2;
+
+			this.opponent.zIndex = 20;
+			this.player.z = 1;
+			this.player.position = 0;
+
+			this.cars.carsPerRoad = 20;
+			this.cars.carStatus = false;
+			this.cars.multiplyFactor = 1;
+
+			this.cars.currentX = undefined;
+
+			document.removeEventListener('mousedown', this.startButton);
 			this.initialCount = 3;
 			await this.startCounter();
 
 			const FRAMES = 60;
 			const SECOND = 1000;
 			const FPS = SECOND / FRAMES;
+
 			this.gameInterval = setInterval(this.updateGameArea, FPS);
 
 			this.movementPlayer();
@@ -389,7 +398,8 @@ class RoadRash {
 			e.clientY >= 425 &&
 			e.clientY <= 445
 		) {
-			document.removeEventListener('mousedown', this.mouseEvent);
+			document.removeEventListener('mousedown', this.startButton);
+
 			this.showScoreArea();
 		}
 	};
@@ -436,7 +446,7 @@ class RoadRash {
 	 */
 	highScoreMouseClick = (e) => {
 		if (e.clientX > 20 && e.clientX < 160 && e.clientY > 40 && e.clientY < 60) {
-			document.removeEventListener('mousedown', this.highScoreMouseEvent);
+			document.removeEventListener('mousedown', this.highScoreMouseClick);
 			this.startingPageDisplay();
 		}
 	};
@@ -488,16 +498,27 @@ class RoadRash {
 	 */
 	movementPlayer = () => {
 		this.keyPressed = {};
-		this.movementDownEvent = document.addEventListener('keydown', (e) => {
-			this.movement = true;
-			this.keyPressed[e.key] = true;
-		});
-		this.movementUpEvent = document.addEventListener('keyup', (e) => {
-			this.movement = false;
-			delete this.keyPressed[e.key];
-		});
+		this.movementDownEvent = document.addEventListener(
+			'keydown',
+			this.keyDownEventHandler
+		);
+		this.movementUpEvent = document.addEventListener(
+			'keyup',
+			this.keyUpEventHandler
+		);
 	};
 
+	/* A function that is being called when a key is pressed. */
+	keyDownEventHandler = (e) => {
+		this.movement = true;
+		this.keyPressed[e.key] = true;
+	};
+
+	/* A function that is called when a key is released. */
+	keyUpEventHandler = (e) => {
+		this.movement = false;
+		delete this.keyPressed[e.key];
+	};
 	/**
 	 * @desc Project Player from 3d space to 2d space
 	 */
@@ -575,7 +596,7 @@ class RoadRash {
 	};
 
 	/**
-	 * @desc Changing the velocity of the bike.
+	 * @desc Changing the velocity of the bike when bike when no key pressed
 	 */
 	velocityChange = async () => {
 		const SPEED_LIMIT = 80;
@@ -611,8 +632,8 @@ class RoadRash {
 	 */
 	clearEventsAfterGame = () => {
 		clearInterval(this.gameInterval);
-		document.removeEventListener('keydown', this.movementDownEvent);
-		document.removeEventListener('keyup', this.movementUpEvent);
+		document.removeEventListener('keydown', this.keyDownEventHandler);
+		document.removeEventListener('keyup', this.keyUpEventHandler);
 	};
 
 	/**
@@ -784,6 +805,7 @@ class RoadRash {
 	 * @desc Add opponents to the screen
 	 */
 	addOpponent = async () => {
+		this.opponent.setZValue(this.index);
 		[
 			this.opponentTop,
 			this.opponentLeft,
@@ -791,16 +813,18 @@ class RoadRash {
 			this.opponentWidth,
 		] = await this.opponent.bikeCoordinates(this.canvas, this.road);
 
-		console.log(this.opponentTop);
+		this.opponent.moveBike();
 
-		this.opponent.renderBike(
-			this.context,
-			this.opponentBike,
-			this.opponentTop,
-			this.opponentLeft,
-			this.opponentWidth,
-			this.opponentHeight
-		);
+		if (this.opponent.conditionToDisplay()) {
+			this.opponent.renderBike(
+				this.context,
+				this.opponentBike,
+				this.opponentLeft,
+				this.opponentTop,
+				this.opponentWidth,
+				this.opponentHeight
+			);
+		}
 	};
 
 	/**

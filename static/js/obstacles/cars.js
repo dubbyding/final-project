@@ -3,9 +3,6 @@ import { Obstacle } from './obstacles.js';
 class Cars extends Obstacle {
 	constructor() {
 		super();
-		this.carsPerRoad = 20;
-		this.carStatus = false;
-		this.multiplyFactor = 1;
 
 		this.carPosition = {
 			top: 439,
