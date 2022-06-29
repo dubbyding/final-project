@@ -58,6 +58,15 @@ const getCurrentCoords = (index, roadAssets) => {
 	];
 };
 
+/**
+ * It creates text on the canvas
+ * @param ctx - The context of the canvas.
+ * @param [font=20px Ariel] - The font of the text.
+ * @param [fill=#000000] - The color of the text.
+ * @param x - The x coordinate where the text will be placed.
+ * @param y - The y-coordinate of the text on the canvas.
+ * @param text - The text to be drawn.
+ */
 const createText = (ctx, font = '20px Ariel', fill = '#000000', x, y, text) => {
 	ctx.font = font;
 	ctx.fillStyle = fill;

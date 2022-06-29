@@ -191,7 +191,7 @@ class RoadRash {
 	 * @desc Loads Necessary Assets
 	 * @param {array} list
 	 * @param {boolean} array
-	 * @returns array of new elements created
+	 * @returns {Array} array of new elements created
 	 */
 	assetsLoad = async (list, array = true) => {
 		let listOfElement = [];
@@ -214,7 +214,7 @@ class RoadRash {
 	/**
 	 *
 	 * @param {string} url
-	 * @returns promise of new image object using that url
+	 * @returns {Promise} promise of new image object using that url
 	 */
 	createElement = (url) => {
 		return new Promise((resolve, reject) => {
@@ -356,6 +356,9 @@ class RoadRash {
 			e.clientY >= 350 &&
 			e.clientY <= 420
 		) {
+			/**
+			 * Resetting values;
+			 */
 			this.carY = 1.452;
 			this.carZ = 0.01;
 
@@ -371,14 +374,23 @@ class RoadRash {
 			this.player.z = 1;
 			this.player.position = 0;
 
+			this.opponent.posChange = 0;
+
 			this.cars.carsPerRoad = 20;
 			this.cars.carStatus = false;
 			this.cars.multiplyFactor = 1;
 
 			this.cars.currentX = undefined;
 
+			/**
+			 * Removing event listener
+			 */
 			document.removeEventListener('mousedown', this.startButton);
 			this.initialCount = 3;
+
+			/**
+			 * Starting game
+			 */
 			await this.startCounter();
 
 			const FRAMES = 60;
@@ -813,7 +825,16 @@ class RoadRash {
 			this.opponentWidth,
 		] = await this.opponent.bikeCoordinates(this.canvas, this.road);
 
-		this.opponent.moveBike();
+		let carPos = [this.carTop, this.carLeft, this.carWidth, this.carHeight];
+		let playerPos = [this.top, this.left, this.width, this.height];
+		let border = [this.xleft, this.xright];
+		let opponentPos = [
+			this.opponentTop,
+			this.opponentLeft,
+			this.opponentWidth,
+			this.opponentHeight,
+		];
+		this.opponent.moveBike(carPos, playerPos, opponentPos, border);
 
 		if (this.opponent.conditionToDisplay()) {
 			this.opponent.renderBike(

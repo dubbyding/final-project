@@ -2,7 +2,7 @@ class Obstacle {
 	/**
 	 * @desc Get Obstacle data
 	 * @param {String} obstacleName
-	 * @returns Object of list of requested obstacles
+	 * @returns {JSON} Object of list of requested obstacles
 	 */
 	obstacleAssets = async (obstacleName) => {
 		try {

@@ -37,7 +37,7 @@ class Road {
 
 	/**
 	 * Function that fetches background assets from backend
-	 * @returns Object of background asset
+	 * @returns {JSON} Object of background asset
 	 */
 	getBackgroundImage = async () => {
 		try {
@@ -55,7 +55,7 @@ class Road {
 	 * @desc Function that generates points using fixed endpoints in three dimensions
 	 * @param {Number} numberOfPartition - Number of partition that can be used to generate the points for the plots
 	 * @param {Array<String>} transfromingDimensions - gets the dimensions of the coordinates to be transformed. Default value ['x']
-	 * @returns Points that can be plotted directly and can also be used to detect collisions as a promise
+	 * @returns {Array} Points that can be plotted directly and can also be used to detect collisions as a promise
 	 */
 	threeDimensionalPoints = async (
 		numberOfPartition,
@@ -85,7 +85,7 @@ class Road {
 	 * @param {Array<Number>} points - Points to be transformed
 	 * @param {Array<String|Number>} dimFact - List of dimensions to be transformed or Factors to be translated if random is given false
 	 * @param {Boolean} random - Condition that translates in random manner if it is true. Default value is true.
-	 * @returns Transformed Coordinates in random manner
+	 * @returns {Array} Transformed Coordinates in random manner
 	 */
 	transformingCoordinates = (points, dimFact, random = true) => {
 		const dimension = {
@@ -112,7 +112,7 @@ class Road {
 	/**
 	 * @desc Generate the rightside boundary of the the road
 	 * @param {Array<Number>} leftCoordinates - Array of left coordinates generated
-	 * @returns Array of rightside boundary coordinates
+	 * @returns {Array} Array of rightside boundary coordinates
 	 */
 	generateRightBoundary = (leftCoordinates) => {
 		let rightCoordinates = [];
@@ -131,7 +131,7 @@ class Road {
 	 * @desc Generate `N` number of Roads
 	 * @param {Number} n - Number of variety of roads to be formed
 	 * @param {Number} numberOfPartition - Number of points to be generated in said coordinates
-	 * @returns Array of both left and right side boundary of roads
+	 * @returns {Array} Array of both left and right side boundary of roads
 	 */
 	generateNVarietyOfRoads = async (n, numberOfPartition) => {
 		let arrayOfRoads = [];
@@ -167,7 +167,7 @@ class Road {
 	 * @desc Translate left or right section of the road area
 	 * @param {Array<Array<Number>>} cords - Current Chords to be transformed
 	 * @param {Array<Number>} prev - Last element of previous element to be transformed
-	 * @returns Traslated coordinate of the given cords section
+	 * @returns {Array<Number>}Traslated coordinate of the given cords section
 	 */
 	translateSectionCoordinates = (cords, prev) => {
 		let diffCords = [
@@ -190,7 +190,7 @@ class Road {
 	 * @desc Generate Projected coordinates from original Coordinates
 	 * @param {Array} cords - 3d Coordinates
 	 * @param {Boolean} zaxis - This is true if zaxis is required in projected coordinates. This is true on default
-	 * @returns Projected coordinates
+	 * @returns {Array} Projected coordinates
 	 */
 	generateProjectedCoordinates = async (cords, zaxis = false) => {
 		let newCords = [];
@@ -267,7 +267,7 @@ class Road {
 	 * @param {Number} leftDiffX - Factor by which left-side of the road should be translated
 	 * @param {Number} index - Current index
 	
-	 * @returns Array of x-coordinates of both left and right side
+	 * @returns {Array} Array of x-coordinates of both left and right side
 	 */
 	roadGenerate = (
 		ctx,

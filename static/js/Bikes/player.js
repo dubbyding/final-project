@@ -21,7 +21,7 @@ class Player extends Bike {
 	/**
 	 *
 	 * @param {string} color
-	 * @returns promise that gives true or false on status of bike
+	 * @returns {Boolean} promise that gives true or false on status of bike
 	 */
 	playerBike = (color) => {
 		return this.checkBikeColor(color);

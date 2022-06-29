@@ -74,7 +74,7 @@ class Bike {
 	/**
 	 * Gets the assets of the bikes
 	 * @param {string} type
-	 * @returns promise of json list of bike assets
+	 * @returns {JSON} promise of json list of bike assets
 	 */
 	bikeAssets = async (type) => {
 		try {
@@ -164,7 +164,7 @@ class Bike {
 	 * @param {Object} canvas - Object of the canvas
 	 * @param {Object} road - Object of road
 	 * @param {Number} transformingFactor - Transforming factor to move to screen. Default is canvas.width/2
-	 * @returns Array of coordinates of the bike coordinates [top, left, height, width]
+	 * @returns {Array} Array of coordinates of the bike coordinates [top, left, height, width]
 	 */
 	bikeCoordinates = async (
 		canvas,
@@ -203,6 +203,111 @@ class Bike {
 			Math.round(newrightCoordinates[1][0] - left + transformingFactor) * 6;
 
 		return [top, left, height, width];
+	};
+
+	moveBike = (carPos, playerPos, currentPos, border) => {
+		let xTopCar,
+			xLeftCar,
+			xWidthCar,
+			xHeightCar,
+			xTopPlayer,
+			xLeftPlayer,
+			xWidthPlayer,
+			xHeightPlayer,
+			xLeft,
+			xRight,
+			top,
+			left,
+			width,
+			height;
+
+		[xTopCar, xLeftCar, xWidthCar, xHeightCar] = carPos;
+		[xTopPlayer, xLeftPlayer, xWidthPlayer, xHeightPlayer] = playerPos;
+		[xLeft, xRight] = border;
+		[top, left, width, height] = currentPos;
+
+		let velocity = this.math.generateRandomNumber(0, 6);
+		if (velocity > 0 && this.velocity <= 1) {
+			this.currentState = 'wheely';
+		}
+		if (velocity > 1) {
+			this.currentState = 'ride';
+		}
+
+		let currentDistanceLeft = left - xLeft[Math.round(this.z)];
+		let currentDistanceRight = xRight[Math.round(this.z)] - (left + width);
+
+		/**
+		 * For Collision with Car
+		 */
+
+		if (carPos[0]) {
+			if (
+				xLeftCar < left + width &&
+				left < xLeftCar + xWidthCar &&
+				xTopCar * 2 < top + height &&
+				top < xTopCar * 2 + xHeightCar
+			) {
+				if (!this.directionCar) {
+					this.directionCar = true;
+					if (currentDistanceLeft > currentDistanceRight) {
+						this.position -= 1;
+						velocity = -40;
+					} else {
+						this.position += 1;
+						velocity = -40;
+					}
+				}
+			} else {
+				this.directionCar = false;
+				velocity = this.math.generateRandomNumber(0, 6);
+			}
+		}
+
+		/**
+		 * For collision with player
+		 */
+		if (
+			xLeftPlayer < left + width &&
+			left < xLeftPlayer + xWidthPlayer &&
+			top < xTopPlayer + xHeightPlayer &&
+			top + height > xTopPlayer
+		) {
+			let playerBottom = xTopPlayer + xHeightPlayer;
+			let opponentBottom = top + height;
+			let diff1 = Math.abs(playerBottom - top);
+			let diff2 = Math.abs(opponentBottom - top);
+			if (diff1 > diff2) {
+				velocity *= 2;
+			} else {
+				velocity = 0;
+				if (!this.directionDetermine) {
+					this.directionDetermine = true;
+					if (currentDistanceLeft > currentDistanceRight) {
+						if (this.posChange > 0) this.posChange = -1;
+					} else {
+						if (this.posChange < 0) this.posChange = 1;
+					}
+				}
+				this.position += this.posChange;
+			}
+		} else {
+			this.directionDetermine = false;
+		}
+
+		/**
+		 * Border Collision Check
+		 */
+
+		if (currentDistanceLeft <= 0) {
+			if (this.posChange < 0) this.posChange = 1;
+		}
+		if (currentDistanceRight <= 0) {
+			if (this.posChange > 0) this.posChange = -1;
+		}
+
+		if (this.z > 0) this.zIndex += velocity / 10;
+		else this.zIndex += 1;
 	};
 }
 

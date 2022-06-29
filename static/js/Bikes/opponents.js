@@ -6,12 +6,23 @@ class Opponent extends Bike {
 		super();
 		this.math = new MathImplement();
 		this.zIndex = 20;
+		this.posChange = 1;
+		this.directionDetermine = false;
+		this.directionCar = false;
 	}
 
+	/**
+	 * @desc Setting the z value of the opponent bike.
+	 * @param {Number} playerZIndex - Current Index of the player
+	 * */
 	setZValue = (playerZIndex) => {
 		this.z = (this.zIndex - playerZIndex) / 10;
 	};
 
+	/**
+	 * @desc Checking if opponent bike is near enough to be displayed
+	 * @returns {Boolean} True, if bike is near to be displayed else false
+	 * */
 	conditionToDisplay = () => {
 		if (this.z < 0 || this.z > 10) {
 			return false;
@@ -20,6 +31,12 @@ class Opponent extends Bike {
 		}
 	};
 
+	/**
+	 * @desc Getting the opponent bike.
+	 * @param {Array} bike - Array of bike objects
+	 * @param {String} playerColor - Color of the player
+	 * @returns {Array} Array of list of bikes except player Bike
+	 * */
 	getOpponentBike = (bike, playerColor) => {
 		this.bike = bike;
 		this.playerColor = playerColor;
@@ -38,18 +55,6 @@ class Opponent extends Bike {
 		);
 		this.remainingBike = remainingBike[currentOpponentIndex];
 		return this.remainingBike;
-	};
-
-	moveBike = (carPos, playerPos) => {
-		let velocity = this.math.generateRandomNumber(0, 6);
-		if (velocity > 0 && this.velocity <= 1) {
-			this.currentState = 'wheely';
-		}
-		if (velocity > 1) {
-			this.currentState = 'ride';
-		}
-		if (this.z > 0) this.zIndex += velocity / 10;
-		else this.zIndex += 1;
 	};
 }
 

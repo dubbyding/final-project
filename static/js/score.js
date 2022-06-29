@@ -1,4 +1,8 @@
 class Score {
+	/**
+	 * Get Score from API
+	 * @returns {Array.<JSON.<Number>>>} JSON file of list of score
+	 */
 	getScore = async () => {
 		try {
 			const link = 'http://localhost:3000/score/getScore';
@@ -10,6 +14,12 @@ class Score {
 			return value.json();
 		}
 	};
+
+	/**
+	 * Set Score to backend using API FETCH
+	 * @param {Number} score
+	 * @returns {Boolean} True, if posting score was successful else False
+	 */
 
 	setScore = async (score) => {
 		try {
@@ -50,6 +60,11 @@ class Score {
 		}
 	};
 
+	/**
+	 * @desc Getting the high score from the score list. It also sorts array.
+	 * @param {Array} scoreList - List of scores
+	 * @returns {Number} Current HighScore
+	 * */
 	getHighScore = async (scoreList) => {
 		this.currentHighScore = parseInt(scoreList[0]['score']);
 		let counter = 0;
