@@ -36,7 +36,7 @@ class RoadRash {
 		this.road = new Road(this.canvas.width, this.canvas.height);
 
 		this.gameLoading = 0;
-		this.gameLoadingTotal = 22;
+		this.gameLoadingTotal = 23;
 
 		this.startGameFlag = false;
 
@@ -158,6 +158,12 @@ class RoadRash {
 			this.loadingGame();
 
 			this.playerBike = this.playerBike[0];
+
+			this.opponentBike = this.opponent.getOpponentBike(
+				this.playerAsset,
+				this.playerColor
+			);
+			this.loadingGame();
 		} catch {
 			this.playerBike = this.playerAsset[0];
 		}
@@ -777,8 +783,24 @@ class RoadRash {
 	/**
 	 * @desc Add opponents to the screen
 	 */
-	addOpponent = () => {
-		this.opponent.getOpponentBike(this.playerAsset, this.playerColor);
+	addOpponent = async () => {
+		[
+			this.opponentTop,
+			this.opponentLeft,
+			this.opponentHeight,
+			this.opponentWidth,
+		] = await this.opponent.bikeCoordinates(this.canvas, this.road);
+
+		console.log(this.opponentTop);
+
+		this.opponent.renderBike(
+			this.context,
+			this.opponentBike,
+			this.opponentTop,
+			this.opponentLeft,
+			this.opponentWidth,
+			this.opponentHeight
+		);
 	};
 
 	/**

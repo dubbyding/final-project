@@ -4,6 +4,7 @@
 class Bike {
 	constructor() {
 		this.currentWidth = 2.5;
+
 		this.bikeStates = {
 			wait: {
 				top: 5,
@@ -66,6 +67,9 @@ class Bike {
 				height: 53,
 			},
 		};
+		this.currentState = 'wait';
+		this.width = this.bikeStates[this.currentState].width;
+		this.bikeHeight = this.bikeStates[this.currentState].height;
 	}
 	/**
 	 * Gets the assets of the bikes

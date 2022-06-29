@@ -7,9 +7,6 @@ import { Bike } from './bike.js';
 class Player extends Bike {
 	constructor() {
 		super();
-		this.currentState = 'wait';
-		this.width = this.bikeStates[this.currentState].width;
-		this.bikeHeight = this.bikeStates[this.currentState].height;
 		this.z = 1;
 	}
 

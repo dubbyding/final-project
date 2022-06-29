@@ -5,6 +5,7 @@ class Opponent extends Bike {
 	constructor() {
 		super();
 		this.math = new MathImplement();
+		this.z = 3;
 	}
 
 	getOpponentBike = (bike, playerColor) => {
@@ -24,6 +25,7 @@ class Opponent extends Bike {
 			remainingBike.length - 1
 		);
 		this.remainingBike = remainingBike[currentOpponentIndex];
+		return this.remainingBike;
 	};
 }
 
