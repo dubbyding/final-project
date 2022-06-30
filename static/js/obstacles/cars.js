@@ -37,7 +37,7 @@ class Cars extends Obstacle {
 			this.totalLength / this.carsPerRoad
 		);
 
-		if (this.index % this.totalNumberOfCarsPerRoad == 0 && this.index != 0) {
+		if ((this.index != 0 && !this.carZAxis) || this.carZAxis < 2) {
 			if (!this.carStatus) {
 				this.carStatus = true;
 				this.multiplyFactor = 1;

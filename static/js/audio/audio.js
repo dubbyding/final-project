@@ -65,6 +65,14 @@ class Audio {
 		this.audioIdle.pause();
 		this.audioRide.play();
 	};
+
+	/**
+	 * @desc Stop all the playing sound
+	 */
+	stopSound = () => {
+		this.audioIdle.pause();
+		this.audioRide.pause();
+	};
 }
 
 export { Audio };

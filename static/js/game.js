@@ -47,7 +47,7 @@ class RoadRash {
 	 * @desc Loading all the assets of the game.
 	 * */
 	loadAssets = async () => {
-		this.numberOfRoads = 100;
+		this.numberOfRoads = 10;
 		this.numberOfPartition = 50;
 
 		let playerList,
@@ -675,6 +675,7 @@ class RoadRash {
 	 * @desc Sets highScore and shows highScore area
 	 */
 	endGame = async (complete = true) => {
+		this.audio.stopSound();
 		this.listOfScore = await this.score.getScore();
 		await this.score.getHighScore(this.listOfScore);
 		if (!complete) await this.bustedPageDisplay();
@@ -719,7 +720,7 @@ class RoadRash {
 			currentCarZ =
 				initialLeftCoordinates[initialLeftCoordinates.length - 1][2];
 
-			this.carZAxis = currentCarZ;
+			this.cars.carZAxis = currentCarZ;
 
 			let currentWidth = this.cars.carPosition.width;
 			let currentHeight = this.cars.carPosition.height;
@@ -761,6 +762,7 @@ class RoadRash {
 				z -= this.carZ;
 				this.cars.currentY[1] = [x, y, z];
 				currentPlayerPosY = this.cars.currentY;
+				this.cars.carZAxis = z;
 			} catch {
 				// console.log('Not Loaded');
 			}
@@ -902,7 +904,7 @@ class RoadRash {
 		this.police.setZValue(this.index);
 
 		if (this.police.conditionToDisplay()) {
-			this.police.moveBike(carPos, playerPos, policePos, border, 5);
+			this.police.moveBike(carPos, playerPos, policePos, border, 3);
 			this.police.renderBike(
 				this.context,
 				this.policeAsset[0],
