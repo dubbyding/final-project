@@ -886,7 +886,7 @@ class RoadRash {
 			this.opponentHeight,
 		];
 
-		this.opponent.moveBike(carPos, playerPos, opponentPos, border, 3);
+		this.opponent.moveBike(carPos, playerPos, opponentPos, border, 5);
 
 		if (this.opponent.conditionToDisplay()) {
 			this.opponent.renderBike(
