@@ -299,12 +299,14 @@ class Bike {
 		}
 	};
 
-	kickCheck = (
-		otherBikeCords,
-		currentBikeCords,
-		otherBike,
-		isPlayer = true
-	) => {
+	/**
+	 * Check if player has kicked and return transfroming factor
+	 * @param {Array} otherBikeCords - Coordinates of bike to be kicked
+	 * @param {Array} currentBikeCords - Coordinates of Current player Bike
+	 * @param {Boolean} isPlayer - Check if it is player or not. Default: True
+	 * @returns
+	 */
+	kickCheck = (otherBikeCords, currentBikeCords, isPlayer = true) => {
 		let xTopOther,
 			xLeftOther,
 			xWidthOther,

@@ -13,6 +13,9 @@ import { Score } from './score.js';
 
 import { getCurrentCoords, createText } from './utils.js';
 
+/**
+ * Main Game class to be handle all other events
+ */
 class RoadRash {
 	constructor(id, playerColor) {
 		this.id = id;
@@ -448,8 +451,9 @@ class RoadRash {
 			this.showHowArea();
 		}
 	};
+
 	/**
-	 * Display Scores
+	 * Display How to play section
 	 */
 	showHowArea = () => {
 		this.clear();
