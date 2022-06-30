@@ -12,26 +12,6 @@ class Opponent extends Bike {
 	}
 
 	/**
-	 * @desc Setting the z value of the opponent bike.
-	 * @param {Number} playerZIndex - Current Index of the player
-	 * */
-	setZValue = (playerZIndex) => {
-		this.z = (this.zIndex - playerZIndex) / 10;
-	};
-
-	/**
-	 * @desc Checking if opponent bike is near enough to be displayed
-	 * @returns {Boolean} True, if bike is near to be displayed else false
-	 * */
-	conditionToDisplay = () => {
-		if (this.z < 0 || this.z > 10) {
-			return false;
-		} else {
-			return true;
-		}
-	};
-
-	/**
 	 * @desc Getting the opponent bike.
 	 * @param {Array} bike - Array of bike objects
 	 * @param {String} playerColor - Color of the player

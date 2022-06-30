@@ -16,6 +16,10 @@ class Audio {
 		return value;
 	};
 
+	/**
+	 * @desc Create New element of audio idle and return its element
+	 * @returns Object of audio Idle sound
+	 */
 	createIdleSound = async () => {
 		this.audioIdle = document.createElement('audio');
 		this.audioIdle.src = this.idle;
@@ -28,6 +32,8 @@ class Audio {
 		return this.audioIdle;
 	};
 
+	/**
+	 * @desc Creating a new audio element and appending it to the body. */
 	createRideSound = async () => {
 		this.audioRide = document.createElement('audio');
 		this.audioRide.src = this.ride;
@@ -40,6 +46,9 @@ class Audio {
 		return this.audioRide;
 	};
 
+	/**
+	 * @desc Pausing the ride sound and playing the idle sound.
+	 * */
 	playIdleSound = async () => {
 		try {
 			this.audioRide.pause();
@@ -49,6 +58,9 @@ class Audio {
 		this.audioIdle.play();
 	};
 
+	/**
+	 * @desc Pausing the idle sound and playing the ride sound.
+	 */
 	playRideSound = () => {
 		this.audioIdle.pause();
 		this.audioRide.play();

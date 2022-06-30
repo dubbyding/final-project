@@ -8,6 +8,7 @@ import { Road } from './road.js';
 import { Audio } from './audio/audio.js';
 import { MathImplement } from './math.js';
 import { StartingPage } from './startingPage.js';
+import { BustedPage } from './bustedPage.js';
 import { Score } from './score.js';
 
 import { getCurrentCoords, createText } from './utils.js';
@@ -18,12 +19,16 @@ class RoadRash {
 		this.playerColor = playerColor;
 
 		this.starter = new StartingPage();
+		this.busted = new BustedPage();
+
 		this.player = new Player(window.innerWidth);
 		this.opponent = new Opponent();
 		this.police = new Police();
+
 		this.cars = new Cars();
 		this.farms = new Farms();
 		this.trees = new Trees();
+
 		this.audio = new Audio();
 		this.math = new MathImplement();
 		this.score = new Score();
@@ -36,7 +41,7 @@ class RoadRash {
 		this.road = new Road(this.canvas.width, this.canvas.height);
 
 		this.gameLoading = 0;
-		this.gameLoadingTotal = 23;
+		this.gameLoadingTotal = 25;
 	}
 	/**
 	 * @desc Loading all the assets of the game.
@@ -70,6 +75,15 @@ class RoadRash {
 			await this.starter.createStartingAsset();
 			this.loadingGame();
 		} catch {
+			console.log('Error loading starting image');
+		}
+		try {
+			await this.busted.getImage();
+			this.loadingGame();
+			await this.busted.createBustedAsset();
+			this.loadingGame();
+		} catch (e) {
+			console.log(e);
 			console.log('Error loading starting image');
 		}
 		// Audio Assets load
@@ -163,6 +177,7 @@ class RoadRash {
 		this.gameLoading++;
 
 		let percentLoad = (this.gameLoading / this.gameLoadingTotal) * 100;
+
 		this.displayLoading(percentLoad);
 		if (Math.round(percentLoad) >= 100) {
 			this.clear();
@@ -346,6 +361,36 @@ class RoadRash {
 	};
 
 	/**
+	 * Reset values of all parameters
+	 */
+	resetValues = () => {
+		this.carY = 1.452;
+		this.carZ = 0.01;
+
+		this.index = 0;
+
+		this.velocity = 0;
+
+		this.movement = false;
+
+		this.playerIndex = 2;
+
+		this.opponent.zIndex = 20;
+		this.player.z = 1;
+		this.player.position = 0;
+
+		this.opponent.posChange = 1;
+
+		this.cars.carsPerRoad = 20;
+		this.cars.carStatus = false;
+		this.cars.multiplyFactor = 1;
+
+		this.cars.currentX = undefined;
+
+		this.police.zIndex = Math.floor(this.roadAssets[0].length / 2);
+	};
+
+	/**
 	 * @desc Creating a function that will be called when the user clicks on the start button.
 	 * @param e - Event of mousedown
 	 */
@@ -359,29 +404,7 @@ class RoadRash {
 			/**
 			 * Resetting values;
 			 */
-			this.carY = 1.452;
-			this.carZ = 0.01;
-
-			this.index = 0;
-
-			this.velocity = 0;
-
-			this.movement = false;
-
-			this.playerIndex = 2;
-
-			this.opponent.zIndex = 20;
-			this.player.z = 1;
-			this.player.position = 0;
-
-			this.opponent.posChange = 0;
-
-			this.cars.carsPerRoad = 20;
-			this.cars.carStatus = false;
-			this.cars.multiplyFactor = 1;
-
-			this.cars.currentX = undefined;
-
+			this.resetValues();
 			/**
 			 * Removing event listener
 			 */
@@ -651,9 +674,10 @@ class RoadRash {
 	/**
 	 * @desc Sets highScore and shows highScore area
 	 */
-	endGame = async () => {
+	endGame = async (complete = true) => {
 		this.listOfScore = await this.score.getScore();
 		await this.score.getHighScore(this.listOfScore);
+		if (!complete) await this.bustedPageDisplay();
 		this.showScoreArea();
 	};
 
@@ -802,6 +826,9 @@ class RoadRash {
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
+	/**
+	 * @desc Display time in the screen for high score
+	 */
 	displayTime = () => {
 		this.currentTime = Date.now() - this.startingSecond;
 		this.context.fillStyle = '#000000';
@@ -834,6 +861,7 @@ class RoadRash {
 			this.opponentWidth,
 			this.opponentHeight,
 		];
+
 		this.opponent.moveBike(carPos, playerPos, opponentPos, border);
 
 		if (this.opponent.conditionToDisplay()) {
@@ -846,6 +874,66 @@ class RoadRash {
 				this.opponentHeight
 			);
 		}
+	};
+
+	/**
+	 * @desc Add opponents to the screen
+	 */
+	addPolice = async () => {
+		[this.policeTop, this.policeLeft, this.policeHeight, this.policeWidth] =
+			await this.police.bikeCoordinates(this.canvas, this.road);
+
+		let carPos = [this.carTop, this.carLeft, this.carWidth, this.carHeight];
+		let playerPos = [this.top, this.left, this.width, this.height];
+		let border = [this.xleft, this.xright];
+		let opponentPos = [
+			this.opponentTop,
+			this.opponentLeft,
+			this.opponentWidth,
+			this.opponentHeight,
+		];
+		let policePos = [
+			this.policeTop,
+			this.policeLeft,
+			this.policeHeight,
+			this.policeWidth,
+		];
+
+		this.police.setZValue(this.index);
+
+		if (this.police.conditionToDisplay()) {
+			this.police.moveBike(carPos, playerPos, policePos, border, 5);
+			this.police.renderBike(
+				this.context,
+				this.policeAsset[0],
+				this.policeLeft,
+				this.policeTop,
+				this.policeWidth,
+				this.policeHeight
+			);
+			if (this.police.bustedStatus(this.velocity)) {
+				this.clearEventsAfterGame();
+				this.endGame(false);
+			}
+		}
+	};
+
+	/**
+	 * @desc This function displays the starting page
+	 */
+	bustedPageDisplay = () => {
+		this.clear();
+		this.gameEnd = true;
+
+		this.context.fillStyle = '#000000';
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.busted.drawImageBackground(this.context);
+
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, 3000);
+		});
 	};
 
 	/**
@@ -865,6 +953,7 @@ class RoadRash {
 		this.addObstacles();
 		this.velocityChange();
 		this.addOpponent();
+		this.addPolice();
 	};
 }
 

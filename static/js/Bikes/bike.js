@@ -105,44 +105,6 @@ class Bike {
 	};
 
 	/**
-	 * @desc A function that is used to change the state of the bike.
-	 * @param {Number} velocity - current velocity of the bike
-	 * @param {Object} keyPressed - Object of currently pressed keys
-	 * */
-	transitionAnimation = (velocity, keyPressed) => {
-		if (velocity == 0) {
-			this.currentState = 'wait';
-		} else if (velocity > 0 && velocity < 10) {
-			this.currentState = 'wheely';
-		} else if (velocity > 10 && velocity < 20) {
-			this.currentState = 'ride';
-		} else if (velocity > 20) {
-			this.currentState = 'speed';
-		}
-
-		if (velocity > 10) {
-			if (keyPressed['d'] || keyPressed['ArrowRight'])
-				this.currentState = 'right';
-			if (keyPressed['a'] || keyPressed['ArrowLeft']) {
-				this.currentState = 'left';
-			}
-		}
-
-		if (keyPressed['x']) {
-			this.currentState = 'punchLeft';
-		}
-		if (keyPressed['c']) {
-			this.currentState = 'punchRight';
-		}
-		if (keyPressed['z']) {
-			this.currentState = 'kickLeft';
-		}
-		if (keyPressed['v']) {
-			this.currentState = 'kickRight';
-		}
-	};
-
-	/**
 	 *  @desc Drawing the bike on the canvas.
 	 */
 	renderBike = (ctx, bike, top, left, width, height) => {
@@ -205,7 +167,14 @@ class Bike {
 		return [top, left, height, width];
 	};
 
-	moveBike = (carPos, playerPos, currentPos, border) => {
+	/**
+	 * Move the bike automatically
+	 * @param {Array.<Number>} carPos - position of the current car
+	 * @param {Array.<Number>} playerPos - position of the player
+	 * @param {Array.<Number>} currentPos - position of the current bike
+	 * @param {Array.<Number>} border - position of the external border
+	 */
+	moveBike = (carPos, playerPos, currentPos, border, maxSpeed = 6) => {
 		let xTopCar,
 			xLeftCar,
 			xWidthCar,
@@ -226,7 +195,7 @@ class Bike {
 		[xLeft, xRight] = border;
 		[top, left, width, height] = currentPos;
 
-		let velocity = this.math.generateRandomNumber(0, 6);
+		let velocity = this.math.generateRandomNumber(0, maxSpeed);
 		if (velocity > 0 && this.velocity <= 1) {
 			this.currentState = 'wheely';
 		}
@@ -260,7 +229,7 @@ class Bike {
 				}
 			} else {
 				this.directionCar = false;
-				velocity = this.math.generateRandomNumber(0, 6);
+				velocity = this.math.generateRandomNumber(0, maxSpeed);
 			}
 		}
 
@@ -308,6 +277,26 @@ class Bike {
 
 		if (this.z > 0) this.zIndex += velocity / 10;
 		else this.zIndex += 1;
+	};
+
+	/**
+	 * @desc Setting the z value of the opponent bike.
+	 * @param {Number} playerZIndex - Current Index of the player
+	 * */
+	setZValue = (playerZIndex) => {
+		this.z = (this.zIndex - playerZIndex) / 10;
+	};
+
+	/**
+	 * @desc Checking if opponent bike is near enough to be displayed
+	 * @returns {Boolean} True, if bike is near to be displayed else false
+	 * */
+	conditionToDisplay = () => {
+		if (this.z < 0 || this.z > 10) {
+			return false;
+		} else {
+			return true;
+		}
 	};
 }
 
