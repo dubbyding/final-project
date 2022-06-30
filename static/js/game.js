@@ -356,6 +356,7 @@ class RoadRash {
 		this.context.fillStyle = 'white';
 		this.context.fillText(playText, positionX, positionY);
 		this.context.fillText(scoreText, positionX, positionY + 50);
+		this.context.fillText('How To Play?', positionX, positionY + 100);
 
 		this.mouseEvent = document.addEventListener('mousedown', this.startButton);
 	};
@@ -437,8 +438,78 @@ class RoadRash {
 
 			this.showScoreArea();
 		}
+		if (
+			e.clientX >= 350 &&
+			e.clientX <= 575 &&
+			e.clientY >= 472 &&
+			e.clientY <= 500
+		) {
+			document.removeEventListener('mousedown', this.startButton);
+			this.showHowArea();
+		}
 	};
+	/**
+	 * Display Scores
+	 */
+	showHowArea = () => {
+		this.clear();
 
+		let currentIndex = 100;
+		createText(this.context, '30px Ariel', '#ff0000', 20, 60, 'Main Menu');
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			50,
+			'Key W - Move Forward'
+		);
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			100,
+			'Key S - Move Backward'
+		);
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			150,
+			'Key A - Move Left'
+		);
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			200,
+			'Key D - Move Right'
+		);
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			250,
+			'Key Z - Kick Left'
+		);
+		createText(
+			this.context,
+			'20px Ariel',
+			'#000',
+			this.canvas.width / 2 - 100,
+			300,
+			'Key V - Kick Right'
+		);
+
+		this.highScoreMouseEvent = document.addEventListener(
+			'mousedown',
+			this.highScoreMouseClick
+		);
+	};
 	/**
 	 * Display Scores
 	 */
