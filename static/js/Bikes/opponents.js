@@ -1,6 +1,9 @@
 import { Bike } from './bike.js';
 import { MathImplement } from '../math.js';
 
+/**
+ * @desc The Opponent class extends the Bike class and adds a few more properties and methods to it.
+ */
 class Opponent extends Bike {
 	constructor() {
 		super();

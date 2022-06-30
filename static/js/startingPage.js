@@ -1,3 +1,6 @@
+/**
+ * It fetches an image from an API, and then draws it to the canvas
+ * */
 class StartingPage {
 	constructor() {
 		this.localLink = 'http://localhost:3000/getAssets/startingImage';
@@ -5,6 +8,9 @@ class StartingPage {
 			'https://roadrash-api.herokuapp.com/getAssets/startingImage';
 	}
 
+	/**
+	 * @desc get Image from API
+	 */
 	getImage = async () => {
 		let value;
 		try {
@@ -18,6 +24,10 @@ class StartingPage {
 		this.startImage = value['img'];
 	};
 
+	/**
+	 * @desc Create starting image asset as new image
+	 * @returns {Object} New DOM Starting image object
+	 */
 	createStartingAsset = async () => {
 		this.startingImage = new Image();
 		this.startingImage.src = this.startImage;
@@ -29,6 +39,10 @@ class StartingPage {
 		};
 	};
 
+	/**
+	 * Draw the starting image
+	 * @param {Object} ctx - Context of the canvas
+	 */
 	drawImageBackground = (ctx) => {
 		ctx.drawImage(
 			this.startingImage,

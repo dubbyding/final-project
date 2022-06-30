@@ -47,7 +47,7 @@ class RoadRash {
 	 * @desc Loading all the assets of the game.
 	 * */
 	loadAssets = async () => {
-		this.numberOfRoads = 10;
+		this.numberOfRoads = 25;
 		this.numberOfPartition = 50;
 
 		let playerList,
@@ -560,6 +560,28 @@ class RoadRash {
 	renderPlayer = async () => {
 		[this.top, this.left, this.height, this.width] =
 			await this.player.bikeCoordinates(this.canvas, this.road);
+		let opponentPos = [
+			this.opponentTop,
+			this.opponentLeft,
+			this.opponentWidth,
+			this.opponentHeight,
+		];
+		let policePos = [
+			this.policeTop,
+			this.policeLeft,
+			this.policeHeight,
+			this.policeWidth,
+		];
+		let playerPos = [this.top, this.left, this.width, this.height];
+
+		let opponentKicked = this.player.kickCheck(opponentPos, playerPos);
+		if (opponentKicked) {
+			this.opponent.position += opponentKicked;
+		}
+		let policeKicked = this.player.kickCheck(policePos, playerPos);
+		if (policeKicked) {
+			this.police.position += policeKicked;
+		}
 
 		this.player.renderBike(
 			this.context,
@@ -864,7 +886,7 @@ class RoadRash {
 			this.opponentHeight,
 		];
 
-		this.opponent.moveBike(carPos, playerPos, opponentPos, border);
+		this.opponent.moveBike(carPos, playerPos, opponentPos, border, 3);
 
 		if (this.opponent.conditionToDisplay()) {
 			this.opponent.renderBike(
@@ -905,6 +927,7 @@ class RoadRash {
 
 		if (this.police.conditionToDisplay()) {
 			this.police.moveBike(carPos, playerPos, policePos, border, 3);
+			this.opponent.moveBike(carPos, opponentPos, policePos, border, 3);
 			this.police.renderBike(
 				this.context,
 				this.policeAsset[0],

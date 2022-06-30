@@ -268,10 +268,10 @@ class Bike {
 		 * Border Collision Check
 		 */
 
-		if (currentDistanceLeft <= 0) {
+		if (currentDistanceLeft < 0) {
 			if (this.posChange < 0) this.posChange = 1;
 		}
-		if (currentDistanceRight <= 0) {
+		if (currentDistanceRight < 0) {
 			if (this.posChange > 0) this.posChange = -1;
 		}
 
@@ -296,6 +296,56 @@ class Bike {
 			return false;
 		} else {
 			return true;
+		}
+	};
+
+	kickCheck = (
+		otherBikeCords,
+		currentBikeCords,
+		otherBike,
+		isPlayer = true
+	) => {
+		let xTopOther,
+			xLeftOther,
+			xWidthOther,
+			xHeightOther,
+			xTopCurrent,
+			xLeftCurrent,
+			xWidthCurrent,
+			xHeightCurrent;
+		[xTopOther, xLeftOther, xWidthOther, xHeightOther] = otherBikeCords;
+		[xTopCurrent, xLeftCurrent, xWidthCurrent, xHeightCurrent] =
+			currentBikeCords;
+
+		if (
+			xLeftCurrent < xLeftOther + xWidthOther &&
+			xLeftOther < xLeftCurrent + xWidthCurrent &&
+			xTopOther < xTopCurrent + xHeightCurrent &&
+			xTopOther + xHeightOther > xTopCurrent
+		) {
+			if (isPlayer) {
+				let leftPlayerDistance = Math.abs(
+					xLeftCurrent - (xLeftOther + xWidthOther)
+				);
+				let rightPlayerDistance = Math.abs(
+					xLeftOther - (xLeftCurrent + xWidthCurrent)
+				);
+
+				if (
+					rightPlayerDistance < leftPlayerDistance &&
+					this.currentState == 'kickRight'
+				) {
+					return 100;
+				}
+				if (
+					rightPlayerDistance > leftPlayerDistance &&
+					this.currentState == 'kickLeft'
+				) {
+					return -100;
+				}
+			}
+		} else {
+			return false;
 		}
 	};
 }

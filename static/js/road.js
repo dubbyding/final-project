@@ -22,15 +22,15 @@ class Road {
 		this.backgroundImagePositions = {
 			sky: {
 				top: 22,
-				left: 4,
+				left: 167,
 				width: 1024,
 				height: 64,
 			},
 			mountain: {
 				top: 22,
-				left: 76,
+				left: 247,
 				width: 1024,
-				height: 64,
+				height: 48,
 			},
 		};
 	}
@@ -443,6 +443,15 @@ class Road {
 			ctx
 		);
 	};
+	/**
+	 * Creating a finish line.
+	 * @param {Object} ctx - Context of the canvas
+	 * @param {Array} newleftCoordinates - Newly generated projected left side of the road
+	 * @param {Array} newrightCoordinates - Newly generated Projected rightside of the road
+	 * @param {Number} rightDiffX - Factor by which right-side of the road should be translated
+	 * @param {Number} rightDiffY - Factor by which road should be scaled
+	 * @param {Number} leftDiffX - Factor by which left-side of the road should be translated
+	 * */
 	createFinishLine = (
 		ctx,
 		newleftCoordinates,
